@@ -76,11 +76,11 @@ export default function Footer() {
           </Link>
         </StyledBrand>
         <StyledOur>
-          <Link href="/about-us" color="text.paimary">
+          <Link href="/about-us" color="text.secondary">
             About us
           </Link>
           <StyledLine />
-          <Link href="/contact-us" color="text.primary">
+          <Link href="/contact-us" color="text.secondary">
             Contact us
           </Link>
         </StyledOur>

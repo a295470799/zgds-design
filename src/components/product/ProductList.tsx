@@ -1,24 +1,30 @@
 import Typography from "@mui/material/Typography";
 import {
-  Alert,
   Box,
   Button,
   MenuItem,
   Paper,
   Select,
-  Snackbar,
   Link,
+  Pagination,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { CheckboxButtonGroup, FormContainer } from "react-hook-form-mui";
-import { useRef, useState } from "react";
-import { useHover } from "ahooks";
+import { useRef } from "react";
+import { useHover, useReactive, useSetState, useUpdateEffect } from "ahooks";
 import Stepper from "#lib/Stepper";
 import Breadcrumb from "#lib/Breadcrumb";
 import ImageComponent from "#lib/Image";
 import WishedIcon from "@assets/icons/wished.svg";
 import WishIcon from "@assets/icons/wish.svg";
 import Layout from "#lib/Layout";
+import { enqueueSnackbar } from "notistack";
+import { getProductList } from "@/api/product";
+import { useRequest } from "ahooks";
+import { addToCart } from "@/api/cart";
+import qs from "query-string";
+import { useLocation } from "react-router";
+import ProductListSkeleton from "../skeleton/ProductListSkeleton";
 
 interface Props {
   id?: string;
@@ -120,8 +126,27 @@ const ProductItem = styled("li")`
   }
 `;
 
+type UrlState = {
+  wished?: string;
+  tags?: string;
+  labels?: string;
+  brand?: string;
+  order?: string;
+  page?: number;
+  page_size?: number;
+};
+
 const ProductList: React.FC<Props> = ({ id }) => {
-  console.log(id);
+  const params = useLocation();
+  const { data: products, refresh } = useRequest<any, [string?]>(
+    getProductList,
+    {
+      defaultParams: [id],
+    }
+  );
+
+  const state = useReactive(new Array(30).fill(1));
+
   const renderLable = (name: string, type = "other") => {
     if (type == "image") {
       return <img src={WishedIcon} />;
@@ -143,116 +168,53 @@ const ProductList: React.FC<Props> = ({ id }) => {
   const isHovering = useHover(dropdownRef);
 
   const handleSortBy = (value: string) => {
-    console.log(value);
-  };
-
-  const defaultProducts = [
-    {
-      id: 396,
-      sku: "LNT14BX",
-      short_name: "Nesting Table",
-      price: "47.99",
-      cover: "https://m.media-amazon.com/images/I/41s3IV7tUZL._SL500_.jpg",
-      label: "",
-      cart_count: 0,
-      in_cart: 0,
-      qty: 1,
-    },
-    {
-      id: 488,
-      sku: "LWD47X",
-      short_name: "Computer Desk",
-      price: "79.99",
-      cover: "https://m.media-amazon.com/images/I/41VFM4b6S4L._SL500_.jpg",
-      label: "",
-      cart_count: 0,
-      in_cart: 0,
-      qty: 1,
-    },
-    {
-      id: 371,
-      sku: "LLS34X",
-      short_name: "Corner Ladder Shelves",
-      price: "36.99",
-      cover: "https://m.media-amazon.com/images/I/31T5wcv6zCL._SL500_.jpg",
-      label: "",
-      cart_count: 0,
-      in_cart: 0,
-      qty: 1,
-    },
-    {
-      id: 372,
-      sku: "LLS34X",
-      short_name: "Corner Ladder Shelves",
-      price: "36.99",
-      cover: "https://m.media-amazon.com/images/I/31T5wcv6zCL._SL500_.jpg",
-      label: "",
-      cart_count: 0,
-      in_cart: 0,
-      qty: 1,
-    },
-    {
-      id: 373,
-      sku: "LLS34X",
-      short_name: "Corner Ladder Shelves",
-      price: "36.99",
-      cover: "https://m.media-amazon.com/images/I/31T5wcv6zCL._SL500_.jpg",
-      label: "",
-      cart_count: 0,
-      in_cart: 0,
-      qty: 1,
-    },
-    {
-      id: 374,
-      sku: "LLS34X",
-      short_name: "Corner Ladder Shelves",
-      price: "36.99",
-      cover: "https://m.media-amazon.com/images/I/31T5wcv6zCL._SL500_.jpg",
-      label: "",
-      cart_count: 0,
-      in_cart: 0,
-      qty: 1,
-    },
-  ];
-
-  const [products, setProducts] = useState<any[]>(defaultProducts);
-
-  const handleUpdateQty = (value: number | string, index: number) => {
-    setProducts((prevProducts) => {
-      const newProducts = [...prevProducts];
-      newProducts[index].qty = value;
-      return newProducts;
+    setUrlState({
+      order: value,
     });
   };
 
-  const [open, setOpen] = useState(false);
-
-  const handleClick = () => {
-    setOpen(true);
-  };
-
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
+  const handleAddToCart = async (id: number, index: number) => {
+    const count = state[index];
+    try {
+      await addToCart(id, count);
+      refresh();
+      enqueueSnackbar(`You've added ${count} item(s) to your cart.`, {
+        variant: "success",
+      });
+    } catch (e) {
+      console.log(e);
     }
-
-    setOpen(false);
   };
+
+  const [urlState, setUrlState] = useSetState<UrlState>({
+    page: 1,
+    page_size: 30,
+    ...qs.parse(params.search),
+  });
+
+  useUpdateEffect(() => {
+    window.location.href = `?${qs.stringify(urlState)}`;
+  }, [urlState]);
 
   return (
     <Layout>
       <Breadcrumb>
-        <Link href="/">Home</Link>
+        <Link href="/" color="inherit">
+          Home
+        </Link>
         <Typography color="secondary.main" fontSize={"1.2rem"}>
           Home Furniture
         </Typography>
       </Breadcrumb>
       <StyledMain>
         <StyledSidebar>
-          <FormContainer>
+          <FormContainer
+            defaultValues={{
+              tags: urlState?.tags ? [urlState.tags] : [],
+              wished: urlState?.wished ? [urlState.wished] : [],
+              labels: urlState?.labels ? urlState.labels?.split(",") : [],
+            }}
+          >
             <SidebarItem>
               <Typography
                 fontSize={"1.4rem"}
@@ -296,6 +258,12 @@ const ProductList: React.FC<Props> = ({ id }) => {
                 pl={2}
                 mb={1}
                 fontSize={"1.4rem"}
+                onClick={() => {
+                  setUrlState({
+                    brand: "SONGMICS",
+                  });
+                }}
+                fontWeight={urlState.brand == "SONGMICS" ? 500 : 400}
               >
                 SONGMICS (143)
               </Link>
@@ -305,6 +273,12 @@ const ProductList: React.FC<Props> = ({ id }) => {
                 pl={2}
                 mb={1}
                 fontSize={"1.4rem"}
+                onClick={() => {
+                  setUrlState({
+                    brand: "VASAGLE",
+                  });
+                }}
+                fontWeight={urlState.brand == "VASAGLE" ? 500 : 400}
               >
                 VASAGLE (269)
               </Link>
@@ -314,6 +288,12 @@ const ProductList: React.FC<Props> = ({ id }) => {
                 pl={2}
                 mb={1}
                 fontSize={"1.4rem"}
+                onClick={() => {
+                  setUrlState({
+                    brand: "FEANDREA",
+                  });
+                }}
+                fontWeight={urlState.brand == "FEANDREA" ? 500 : 400}
               >
                 FEANDREA (0)
               </Link>
@@ -323,33 +303,52 @@ const ProductList: React.FC<Props> = ({ id }) => {
                 name="tags"
                 options={[
                   {
-                    id: '{"bought":"1"}',
+                    id: "bought",
                     label: renderLable("Bought", "bought"),
                   },
+                ]}
+                onChange={(e: string[]) => {
+                  setUrlState({
+                    tags: e?.[0],
+                  });
+                }}
+              />
+              <CheckboxButtonGroup
+                name="wished"
+                options={[
                   {
-                    id: '{"wished":"1"}',
+                    id: "1",
                     label: renderLable("wished", "image"),
                   },
-                  { id: '{"labels":"NEW"}', label: renderLable("NEW") },
+                ]}
+                onChange={(e: string[]) => {
+                  setUrlState({
+                    wished: e?.[0],
+                  });
+                }}
+              />
+              <CheckboxButtonGroup
+                name="labels"
+                options={[
+                  { id: "NEW", label: renderLable("NEW") },
                   {
-                    id: '{"labels":"Top%20Rated"}',
+                    id: "Top Rated",
                     label: renderLable("Top Rated"),
                   },
                   {
-                    id: '{"labels":"Clearance"}',
+                    id: "Clearance",
                     label: renderLable("Clearance"),
                   },
                   {
-                    id: '{"labels":"Discount"}',
+                    id: "Discount",
                     label: renderLable("Discount"),
                   },
                 ]}
-                // onChange={(e: string[]) => {
-                //   router.push({
-                //     pathname: "/list/[id]",
-                //     query: { id, ...e.map((item: string) => JSON.parse(item)) },
-                //   });
-                // }}
+                onChange={(e: string[]) => {
+                  setUrlState({
+                    labels: e.join(","),
+                  });
+                }}
               />
             </SidebarItem>
           </FormContainer>
@@ -390,10 +389,15 @@ const ProductList: React.FC<Props> = ({ id }) => {
                 return (
                   <Link
                     key={item}
-                    underline={item == 30 ? "always" : "hover"}
+                    underline={item == urlState.page_size ? "always" : "hover"}
                     color="text.secondary"
                     href="#"
                     fontSize={"1.4rem"}
+                    onClick={() => {
+                      setUrlState({
+                        page_size: item,
+                      });
+                    }}
                   >
                     {item}
                   </Link>
@@ -401,92 +405,113 @@ const ProductList: React.FC<Props> = ({ id }) => {
               })}
             </Box>
           </Box>
-          <StyledProducts>
-            {products.map((item: any, index) => {
-              return (
-                <ProductItem key={index}>
-                  <Box
+          {products?.data ? (
+            products?.data?.length > 0 ? (
+              <>
+                <StyledProducts>
+                  {products?.data?.map((item: any, index: number) => {
+                    return (
+                      <ProductItem key={index}>
+                        <Box
+                          sx={{
+                            position: "relative",
+                            display: "block",
+                            marginBlockEnd: "22px",
+                          }}
+                        >
+                          <Link href={`/product/${item.sku}`}>
+                            <ImageComponent
+                              src={item.cover}
+                              alt={item.short_name}
+                              width={270}
+                              height={270}
+                              loadingType="loading"
+                            />
+                          </Link>
+                          <span className="badge badge-sale">Sale</span>
+                          <span className="badge badge-wish"></span>
+                          <span className="badge badge-back">Backorder</span>
+                        </Box>
+                        <Box>
+                          <Link
+                            color="text.secondary"
+                            href={`/product/${item.sku}`}
+                            sx={{
+                              textOverflow: "ellipsis",
+                              fontSize: 14,
+                              fontWeight: 500,
+                              display: "block",
+                              marginBlockEnd: "10px",
+                            }}
+                          >
+                            {item.short_name}
+                          </Link>
+                          <Typography
+                            color="text.fourth"
+                            fontSize={"1.2rem"}
+                            sx={{ marginBlockEnd: "10px" }}
+                          >
+                            SKU: {item.sku}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              marginBlockEnd: "10px",
+                            }}
+                          >
+                            <Typography color="text.fourth" fontSize={"1.2rem"}>
+                              {item.cart_count} in cart
+                            </Typography>
+                            <Stepper
+                              value={state[index]}
+                              onChange={(value) => (state[index] = value)}
+                            />
+                          </Box>
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            color="dark"
+                            onClick={() => {
+                              handleAddToCart(item.id, index);
+                            }}
+                          >
+                            ADD TO CART
+                          </Button>
+                        </Box>
+                      </ProductItem>
+                    );
+                  })}
+                </StyledProducts>
+                {(products?.last_page ?? 0) > 1 && (
+                  <Pagination
                     sx={{
-                      position: "relative",
-                      display: "block",
-                      marginBlockEnd: "22px",
+                      marginBottom: "50px",
+                      "& .MuiPagination-ul": {
+                        justifyContent: "flex-end",
+                      },
                     }}
-                  >
-                    <Link href={`/product/${item.sku}`}>
-                      <ImageComponent
-                        src={item.cover}
-                        alt={item.short_name}
-                        width={270}
-                        height={270}
-                        loadingType="loading"
-                      />
-                    </Link>
-                    <span className="badge badge-sale">Sale</span>
-                    <span className="badge badge-wish"></span>
-                    <span className="badge badge-back">Backorder</span>
-                  </Box>
-                  <Box>
-                    <Link
-                      color="text.secondary"
-                      href={`/product/${item.sku}`}
-                      sx={{
-                        textOverflow: "ellipsis",
-                        fontSize: 14,
-                        fontWeight: 500,
-                        display: "block",
-                        marginBlockEnd: "10px",
-                      }}
-                    >
-                      {item.short_name}
-                    </Link>
-                    <Typography
-                      color="text.fourth"
-                      fontSize={"1.2rem"}
-                      sx={{ marginBlockEnd: "10px" }}
-                    >
-                      SKU: {item.sku}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBlockEnd: "10px",
-                      }}
-                    >
-                      <Typography color="text.fourth" fontSize={"1.2rem"}>
-                        {item.in_cart} in cart
-                      </Typography>
-                      <Stepper
-                        value={item.qty}
-                        onChange={(value) => handleUpdateQty(value, index)}
-                      />
-                    </Box>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="dark"
-                      onClick={handleClick}
-                    >
-                      ADD TO CART
-                    </Button>
-                  </Box>
-                </ProductItem>
-              );
-            })}
-          </StyledProducts>
+                    count={products?.last_page}
+                    variant="outlined"
+                    shape="rounded"
+                    onChange={(e, value) => {
+                      setUrlState({
+                        page: value,
+                      });
+                    }}
+                    defaultPage={Number(urlState?.page)}
+                  />
+                )}
+              </>
+            ) : (
+              <>Empty</>
+            )
+          ) : (
+            <ProductListSkeleton />
+          )}
         </StyledContent>
       </StyledMain>
-      <Snackbar
-        open={open}
-        autoHideDuration={4000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-          {"You've added 1 item(s) to your cart."}
-        </Alert>
-      </Snackbar>
     </Layout>
   );
 };

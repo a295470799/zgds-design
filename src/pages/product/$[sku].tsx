@@ -20,6 +20,8 @@ import "swiper/css/thumbs";
 import Layout from "#lib/Layout";
 import { useRequest } from "ahooks";
 import { useParams } from "react-router";
+import { enqueueSnackbar } from "notistack";
+import { addToCart } from "@/api/cart";
 
 const StyledInfo = styled("div")`
   display: flex;
@@ -50,8 +52,6 @@ const StyledInfoRight = styled("div")`
   flex: 1;
   padding: 0 35px;
 `;
-
-const StyledThumbsSwiper = styled(Swiper)``;
 
 const StyledPriceInterval = styled("div")`
   display: flex;
@@ -122,12 +122,25 @@ export default function Product() {
     );
   };
 
+  const handleAddToCart = async () => {
+    try {
+      await addToCart(info.id, qty);
+      enqueueSnackbar(`You've added ${qty} item(s) to your cart.`, {
+        variant: "success",
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <Layout>
       <Breadcrumb>
-        <Link href="/">Home</Link>
-        <Typography color="secondary.main" fontSize={"1.2rem"}>
-          {info?.product?.short_name}
+        <Link href="/" color="inherit">
+          Home
+        </Link>
+        <Typography color="secondary" fontSize={"1.2rem"}>
+          {info?.short_name}
         </Typography>
       </Breadcrumb>
       <StyledInfo>
@@ -139,7 +152,7 @@ export default function Product() {
             observeParents
             observeSlideChildren
           >
-            {info?.product?.images?.map((item: any, index: number) => {
+            {info?.images?.map((item: any, index: number) => {
               return (
                 <SwiperSlide key={index}>
                   <ImageComponent
@@ -168,7 +181,7 @@ export default function Product() {
             observeParents
             observeSlideChildren
           >
-            {info?.product?.images?.map((item: any, index: number) => {
+            {info?.images?.map((item: any, index: number) => {
               return (
                 <SwiperSlide key={index}>
                   <ImageComponent
@@ -186,14 +199,14 @@ export default function Product() {
         </StyledInfoLeft>
         <StyledInfoRight>
           <Typography color="text.secondary" fontWeight={500}>
-            {info?.product?.long_name}
+            {info?.long_name}
           </Typography>
           <Typography
             color="text.fourth"
             fontSize={"1.4rem"}
             sx={{ marginBlock: "10px", lineHeight: 1 }}
           >
-            SKU: {info?.product?.sku}
+            SKU: {info?.sku}
           </Typography>
           <Box>
             <Typography
@@ -205,7 +218,7 @@ export default function Product() {
               Unit Price:{" "}
             </Typography>
             <Typography
-              color="secondary.main"
+              color="secondary"
               fontSize={"1.4rem"}
               fontWeight={500}
               component="span"
@@ -213,7 +226,7 @@ export default function Product() {
               {formatPrice(41.99)}
             </Typography>
             <Typography
-              color="secondary.main"
+              color="secondary"
               fontSize={"1.4rem"}
               component="span"
               sx={{ marginLeft: "20px" }}
@@ -222,7 +235,7 @@ export default function Product() {
             </Typography>
           </Box>
           <StyledPriceInterval>
-            {info?.product?.prices.map((item: any, index: number) => {
+            {info?.prices.map((item: any, index: number) => {
               return (
                 <Box
                   sx={{
@@ -240,7 +253,7 @@ export default function Product() {
                     {item.section}
                   </Typography>
                   <Typography
-                    color="secondary.main"
+                    color="secondary"
                     fontSize={"1.4rem"}
                     fontWeight={500}
                   >
@@ -321,11 +334,7 @@ export default function Product() {
             <Box sx={{ margin: "0 15px 0 10px" }}>
               <Stepper value={qty} onChange={setQty} />
             </Box>
-            <Typography
-              color="secondary.main"
-              fontSize={"1.4rem"}
-              fontWeight={500}
-            >
+            <Typography color="secondary" fontSize={"1.4rem"} fontWeight={500}>
               MOQ 1pcs
             </Typography>
           </Box>
@@ -342,6 +351,7 @@ export default function Product() {
               color="secondary"
               size="medium"
               sx={{ width: 280, fontWeight: 500, fontSize: 16 }}
+              onClick={handleAddToCart}
             >
               ADD TO CART
             </Button>
@@ -364,7 +374,7 @@ export default function Product() {
           </Tabs>
         </Box>
         <TabPanel value={tabValue} index={0}>
-          {info?.product?.features.map((item: string, index: number) => {
+          {info?.features.map((item: string, index: number) => {
             return (
               <Typography
                 fontSize={"1.4rem"}
@@ -379,13 +389,14 @@ export default function Product() {
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
           <Typography
-            dangerouslySetInnerHTML={{ __html: info?.product?.content }}
+            dangerouslySetInnerHTML={{ __html: info?.content }}
             fontSize={"1.4rem"}
             color="text.fifth"
           ></Typography>
         </TabPanel>
         <TabPanel value={tabValue} index={2}>
           <Paper
+            elevation={24}
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -395,7 +406,6 @@ export default function Product() {
               width: 190,
               height: 160,
               background: "#f8f9fa",
-              boxShadow: "0 5px 8px rgba(0,0,0,.1)",
             }}
           >
             <Typography

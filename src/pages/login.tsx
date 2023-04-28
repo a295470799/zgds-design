@@ -9,6 +9,8 @@ import { FormContainer, TextFieldElement } from "react-hook-form-mui";
 // import { useState } from "react";
 import ImageComponent from "#lib/Image";
 import { useRequest } from "ahooks";
+import { login } from "@/api/user";
+import { setToken } from "@/utils/auth";
 
 const Container = styled("div")`
   background-color: #0074a3;
@@ -130,7 +132,15 @@ export default function Login() {
           <FormHead>ZIEL Global Distributor System</FormHead>
           <FormBody>
             <StyledTitle>LOGIN</StyledTitle>
-            <FormContainer onSuccess={(data) => console.log(data)}>
+            <FormContainer
+              onSuccess={async (data: API.Login) => {
+                const res = await login(data);
+                if (res.token) {
+                  setToken(res.token);
+                  window.location.href = "/";
+                }
+              }}
+            >
               <TextFieldElement required label="Email" name="email" />
               <TextFieldElement
                 type="password"

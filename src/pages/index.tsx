@@ -1,5 +1,5 @@
-import Layout from "#lib/Layout";
+import ProductList from "@/components/product/ProductList";
 
-export default function Home() {
-  return <Layout>Index</Layout>;
+export default function Index() {
+  return <ProductList />;
 }

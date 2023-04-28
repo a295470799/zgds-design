@@ -19,11 +19,11 @@ const theme = createTheme({
       contrastText: "#ffffff",
     },
     text: {
-      primary: "#222222",
+      primary: "#333333",
       secondary: "#666666",
       third: "#888888",
       fourth: "#999999",
-      fifth: "#333333",
+      fifth: "#555555",
     },
     background: {
       default: "#ffffff",
@@ -37,6 +37,17 @@ const theme = createTheme({
     htmlFontSize: 10,
   },
   components: {
+    MuiPaper: {
+      defaultProps: {
+        elevation: 3,
+      },
+      styleOverrides: {
+        elevation24: {
+          background: "#ffffff",
+          boxShadow: "0 5px 8px rgba(0,0,0,.1)",
+        },
+      },
+    },
     MuiLink: {
       defaultProps: {
         underline: "hover",

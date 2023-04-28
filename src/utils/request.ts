@@ -1,15 +1,27 @@
 import axios from "axios";
+import { getToken, removeToken } from "./auth";
+import { enqueueSnackbar } from "notistack";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    /**
+     * @description 是否默认弹出错误信息
+     */
+    isShowError?: boolean;
+  }
+}
 
 const request = axios.create({
-  baseURL: "https://eu.distributor.songmics.com",
+  baseURL: "http://dev.a.zgds.eu",
+  timeout: 3000,
 });
 
 request.interceptors.request.use(
   async (config) => {
-    // 这里只有客户端的cookie生效了，
-    // 如果要获取服务端cookie的话，在getServerSideProps中获取request中的cookie，再手动设置到每个请求的请求头中
-    // const headers = await composeAuthHeaders();
-    // config.headers = { ...config.headers, ...headers, client: process.env.NEXT_PUBLIC_CLIENT };
+    const token = getToken();
+    if (token) {
+      config.headers.token = token;
+    }
     return config;
   },
   async (error) => {
@@ -19,21 +31,28 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
   async (response) => {
-    //TODO: 临时抛出接口错误
-    // if (![1, 200].includes(response.data.code)) {
-    //   return Promise.reject(response);
-    // }
-    return response.data;
+    // 2xx 范围内的状态码都会触发该函数。
+    // 对响应数据做点什么
+    if (response?.data?.code === 200) {
+      return response.data;
+    } else if (response?.data?.code === 401) {
+      removeToken();
+      window.location.href = "/login";
+    } else {
+      if (response.config.isShowError) {
+        enqueueSnackbar(
+          response?.data?.message ?? "System busy, please retry",
+          {
+            variant: "error",
+          }
+        );
+      }
+      throw response.data;
+    }
   },
   async (error) => {
-    if (error.response?.status === 401) {
-      // 跳过注销时异常, status = 401
-      //   if (error.response.config.url === "/logout") return;
-      //   await store?.dispatch(logoutAsync(true));
-    }
-    // if (error.response?.status === 400) {
-    //   return error;
-    // }
+    // 超出 2xx 范围的状态码都会触发该函数。
+    // 对响应错误做点什么
     return Promise.reject(error);
   }
 );

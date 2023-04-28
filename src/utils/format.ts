@@ -1,11 +1,24 @@
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
 export const formatPrice = (price?: number | string, country = "eu") => {
   const newPrice = typeof price === "string" ? Number(price) : price;
   if (country === "us") {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(newPrice ?? 0);
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(newPrice ?? 0);
   } else if (country === "uk") {
-    return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(newPrice ?? 0);
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: "GBP",
+    }).format(newPrice ?? 0);
   }
-  return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(newPrice ?? 0);
+  return new Intl.NumberFormat("de-DE", {
+    style: "currency",
+    currency: "EUR",
+  }).format(newPrice ?? 0);
 };
 
 export function toBase64(str: string): string {
@@ -34,4 +47,37 @@ export const addPercentUnit = (val?: string | number) => {
   } else {
     return val + "%";
   }
+};
+
+/**
+ * 把北京时间转换为浏览器时间
+ * @param date 从后端获取的北京时间
+ */
+export const formateDate = (date: string, onlyDay?: boolean) => {
+  if (date) {
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+
+    // 创建一个当前时间的实例
+    const now = dayjs();
+
+    // 获取浏览器时区字符串
+    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // 将北京时间转换为浏览器时间
+    const beijingTime = dayjs(date).tz(browserTimezone);
+
+    const browserTime = now
+      .year(beijingTime.year())
+      .month(beijingTime.month())
+      .date(beijingTime.date())
+      .hour(beijingTime.hour())
+      .minute(beijingTime.minute())
+      .second(beijingTime.second());
+
+    const formatString = onlyDay ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm:ss";
+
+    return browserTime.format(formatString);
+  }
+  return "";
 };

@@ -5,13 +5,14 @@ export default function NotFound() {
   return (
     <Layout
       title="404 Not Found"
-      sx={{
+      bodySx={{
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         marginBlockStart: 0,
       }}
+      bodyWrapperSx={{ display: "flex" }}
     >
       <Typography
         variant="h1"
