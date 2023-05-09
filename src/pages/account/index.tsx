@@ -108,10 +108,10 @@ export default function () {
         }}
       >
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography color="inherit" fontSize="2.0rem" fontWeight={700}>
+          <Typography fontSize="2.0rem" fontWeight={700}>
             Hello EUziel!
           </Typography>
-          <Typography color="inherit" fontSize="1.6rem" fontWeight={500}>
+          <Typography fontSize="1.6rem" fontWeight={500}>
             Welcome to ZIEL Global Distributor System
           </Typography>
         </Box>
@@ -123,23 +123,23 @@ export default function () {
         padding="0 30px"
         marginTop="-40px"
       >
-        <StyledStatistic elevation={24}>
+        <StyledStatistic>
           <StyledStatisticTitle>TOTAL ORDERS</StyledStatisticTitle>
           <StyledStatisticContent>0</StyledStatisticContent>
         </StyledStatistic>
-        <StyledStatistic width={300} elevation={24}>
+        <StyledStatistic width={300}>
           <StyledStatisticTitle>TOTAL AMOUNTS</StyledStatisticTitle>
           <StyledStatisticContent>{formatPrice(0)}</StyledStatisticContent>
         </StyledStatistic>
-        <StyledStatistic elevation={24}>
+        <StyledStatistic>
           <StyledStatisticTitle>TOTAL UNITS</StyledStatisticTitle>
           <StyledStatisticContent>0</StyledStatisticContent>
         </StyledStatistic>
       </Box>
-      <StyledCard elevation={24}>
+      <StyledCard>
         <StyledCardTitle>Document DOWNLOAD</StyledCardTitle>
         <Box display="flex" justifyContent="space-evenly">
-          <StyledDownloadCard elevation={24}>
+          <StyledDownloadCard>
             <StyledDownloadCardTitle>PRODUCTS INFO</StyledDownloadCardTitle>
             <img src={CsvIcon} />
             <Button variant="outlined">
@@ -154,7 +154,7 @@ export default function () {
               <img src={DownloadIcon} />
             </Button>
           </StyledDownloadCard>
-          <StyledDownloadCard elevation={24}>
+          <StyledDownloadCard>
             <StyledDownloadCardTitle>STOCK TEMPLATE</StyledDownloadCardTitle>
             <img src={XlsIcon} />
             <Button variant="outlined">
@@ -171,7 +171,7 @@ export default function () {
           </StyledDownloadCard>
         </Box>
       </StyledCard>
-      <StyledCard elevation={24}>
+      <StyledCard>
         <StyledCardTitle>TOP ITEMS YOU BOUGHT</StyledCardTitle>
         <StyledCardTable>
           <li>
@@ -207,7 +207,7 @@ export default function () {
         </StyledCardTable>
         {/* <Typography>---</Typography> */}
       </StyledCard>
-      <StyledCard elevation={24}>
+      <StyledCard>
         <StyledCardTitle>TOP COOPERATIVE CUSTOMERS</StyledCardTitle>
         <StyledCardTable>
           <li className="table-head">

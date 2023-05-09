@@ -79,7 +79,10 @@ const AddressModal: React.FC<AddressModalProps> = (props) => {
   } = props;
 
   const clonedTrigger = React.cloneElement(trigger, {
-    onClick: handleClickOpen,
+    onClick: () => {
+      trigger?.props?.onClick?.();
+      handleClickOpen();
+    },
   });
 
   return (
@@ -125,7 +128,6 @@ const AddressModal: React.FC<AddressModalProps> = (props) => {
                       </TableCell>
                       <TableCell>
                         <Button
-                          variant="contained"
                           size="small"
                           onClick={() => {
                             onSelect(item);

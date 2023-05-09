@@ -123,14 +123,10 @@ export default function Product() {
   };
 
   const handleAddToCart = async () => {
-    try {
-      await addToCart(info.id, qty);
-      enqueueSnackbar(`You've added ${qty} item(s) to your cart.`, {
-        variant: "success",
-      });
-    } catch (e) {
-      console.log(e);
-    }
+    await addToCart(info.id, qty);
+    enqueueSnackbar(`You've added ${qty} item(s) to your cart.`, {
+      variant: "success",
+    });
   };
 
   return (
@@ -347,7 +343,6 @@ export default function Product() {
             }}
           >
             <Button
-              variant="contained"
               color="secondary"
               size="medium"
               sx={{ width: 280, fontWeight: 500, fontSize: 16 }}
@@ -396,7 +391,6 @@ export default function Product() {
         </TabPanel>
         <TabPanel value={tabValue} index={2}>
           <Paper
-            elevation={24}
             sx={{
               display: "flex",
               flexDirection: "column",

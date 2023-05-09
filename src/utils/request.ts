@@ -41,7 +41,7 @@ request.interceptors.response.use(
     } else {
       if (response.config.isShowError) {
         enqueueSnackbar(
-          response?.data?.message ?? "System busy, please retry",
+          response?.data?.message || "System busy, please retry",
           {
             variant: "error",
           }

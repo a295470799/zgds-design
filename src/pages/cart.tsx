@@ -8,11 +8,6 @@ import {
   FormControlLabel,
   Popover,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   Link,
 } from "@mui/material";
 import Table from "@mui/material/Table";
@@ -33,9 +28,11 @@ import { useNavigate } from "react-router-dom";
 import EmptyImg from "@assets/images/cart/empty.png";
 import { getCart } from "@/api/cart";
 import CartSkeleton from "@/components/skeleton/CartSkeleton";
+import { useConfirm } from "#lib/ConfirmProvider";
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
+  const { confirm } = useConfirm();
   const getCartParams = (carts?: any[]) => {
     return (
       carts?.map((item) => {
@@ -84,30 +81,21 @@ const Cart: React.FC = () => {
     });
   };
 
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = (id: number) => {
-    setCurrentId(id);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setCurrentId(0);
-  };
-
-  const handleDelete = () => {
-    const cart = cartInfo?.carts?.map((item) => {
-      return {
-        ...item,
-        count: item.id == currentId ? -1 : item.count,
-      };
+  const handleDelete = (id: number) => {
+    confirm({
+      title: "CONFIRMATION",
+      message: "Are you sure to remove this item?",
+      onConfirm() {
+        const cart = cartInfo?.carts?.map((item) => {
+          return {
+            ...item,
+            count: item.id == id ? -1 : item.count,
+          };
+        });
+        run(cart ?? []);
+      },
     });
-    run(cart ?? []);
-    handleClose();
   };
-
-  const [currentId, setCurrentId] = useState<number>(0);
 
   return (
     <Layout title="Cart">
@@ -132,7 +120,7 @@ const Cart: React.FC = () => {
             >
               <TableContainer sx={{ width: 800 }}>
                 <Table
-                  sx={{ "& th": { fontSize: 12, color: "secondary" } }}
+                  sx={{ "& th": { fontSize: 12, color: "text.secondary" } }}
                   aria-label="shopping cart"
                 >
                   <TableHead>
@@ -238,6 +226,7 @@ const Cart: React.FC = () => {
                                 </Typography>
                               </Box>
                               <Button
+                                variant="text"
                                 sx={{
                                   minWidth: "auto",
                                   width: 20,
@@ -245,7 +234,7 @@ const Cart: React.FC = () => {
                                   justifyContent: "flex-start",
                                   padding: 0,
                                 }}
-                                onClick={() => handleClickOpen(row.id)}
+                                onClick={() => handleDelete(row.id)}
                               >
                                 <img src={DeleteIcon} />
                               </Button>
@@ -383,32 +372,6 @@ const Cart: React.FC = () => {
             >
               <CircularProgress color="inherit" />
             </Backdrop>
-
-            <Dialog
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">CONFIRMATION</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Are you sure to remove this item?
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={handleDelete}
-                  color="secondary"
-                  variant="contained"
-                >
-                  Yes
-                </Button>
-                <Button onClick={handleClose} autoFocus variant="contained">
-                  No
-                </Button>
-              </DialogActions>
-            </Dialog>
           </>
         ) : (
           <Box sx={{ textAlign: "center", marginTop: "50px" }}>
@@ -435,7 +398,6 @@ const Cart: React.FC = () => {
             <Typography color="text.third">Go ahead and fill it up.</Typography>
             <Button
               href="/"
-              variant="contained"
               size="large"
               color="dark"
               sx={{ marginTop: "30px" }}

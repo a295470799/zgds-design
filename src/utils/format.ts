@@ -53,7 +53,7 @@ export const addPercentUnit = (val?: string | number) => {
  * 把北京时间转换为浏览器时间
  * @param date 从后端获取的北京时间
  */
-export const formateDate = (date: string, onlyDay?: boolean) => {
+export const formatDate = (date: string, onlyDay?: boolean) => {
   if (date) {
     dayjs.extend(utc);
     dayjs.extend(timezone);
@@ -78,6 +78,20 @@ export const formateDate = (date: string, onlyDay?: boolean) => {
     const formatString = onlyDay ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm:ss";
 
     return browserTime.format(formatString);
+  }
+  return "";
+};
+
+/**
+ * 把浏览器时间转换为北京时间
+ * @param date 浏览器时间
+ */
+export const formatBeijingDate = (date: dayjs.ConfigType) => {
+  if (date) {
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+
+    return dayjs(date).tz("Asia/Shanghai").format("YYYY-MM-DD");
   }
   return "";
 };

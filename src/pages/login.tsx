@@ -148,16 +148,11 @@ export default function Login() {
                 label="Password"
                 name="password"
               />
-              <Button type="submit" variant="contained" size="medium">
+              <Button type="submit" size="medium">
                 LOGIN
               </Button>
               <StyledOr>OR</StyledOr>
-              <Button
-                href="/register"
-                variant="contained"
-                size="medium"
-                color="success"
-              >
+              <Button href="/register" size="medium" color="success">
                 REGISTER
               </Button>
             </FormContainer>

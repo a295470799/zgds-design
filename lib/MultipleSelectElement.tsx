@@ -39,16 +39,14 @@ const MultipleSelectElement: React.FC<Props> = (props) => {
             onChange(value?.map((item) => item.id));
           }}
           renderInput={(params) => (
-            <TextField
-              {...params}
-              label={label}
-              value={value ?? []}
-              inputRef={ref}
-            />
+            <TextField {...params} label={label} inputRef={ref} />
           )}
           isOptionEqualToValue={(option, value) => {
             return option.id == value.id;
           }}
+          value={value?.map((item: string) => {
+            return { id: item, label: item };
+          })}
           sx={{
             "& .MuiAutocomplete-tag": {
               margin: "2px",

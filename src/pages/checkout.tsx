@@ -4,6 +4,7 @@ import { getCountrys } from "@/api/country";
 import { getEyaUsers, getLoginUser } from "@/api/user";
 import AddressModal from "@/components/AddressModal";
 import CartSummary from "@/components/CartSummary";
+import OrderTypeSelect from "@/components/OrderTypeSelect";
 import CheckoutCard from "@/components/checkout/CheckoutCard";
 import {
   Backdrop,
@@ -11,8 +12,6 @@ import {
   Button,
   CircularProgress,
   Dialog,
-  DialogActions,
-  DialogTitle,
   Paper,
   Typography,
 } from "@mui/material";
@@ -178,48 +177,8 @@ export default function Checkout() {
 
   return checkoutData?.total_price > 0 ? (
     <Layout title="Checkout" bodySx={{ marginBlockStart: 0 }}>
-      <Dialog
-        open={state.dialogOpen}
-        disableEscapeKeyDown={true}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        PaperProps={{
-          sx: {
-            width: "300px",
-          },
-        }}
-      >
-        <DialogTitle
-          id="alert-dialog-title"
-          sx={(theme) => {
-            return {
-              background: theme.palette.primary.main,
-              color: theme.palette.common.white,
-              fontSize: "1.4rem",
-              padding: "9px 24px",
-              textAlign: "center",
-            };
-          }}
-        >
-          Please select an order type
-        </DialogTitle>
-        <DialogActions
-          sx={{ justifyContent: "space-around", padding: "30px 0" }}
-        >
-          <Button
-            onClick={() => handleDialogClick("Dropship")}
-            variant="contained"
-          >
-            Dropship
-          </Button>
-          <Button
-            onClick={() => handleDialogClick("Batch order")}
-            variant="contained"
-          >
-            Batch order
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <OrderTypeSelect open={state.dialogOpen} onSelect={handleDialogClick} />
+
       {state.checkOutType && (
         <FormContainer onSuccess={placeOrder}>
           <Box
@@ -327,10 +286,7 @@ export default function Checkout() {
                           });
                         }}
                         trigger={
-                          <Button
-                            variant="contained"
-                            sx={{ marginBlockEnd: "35px" }}
-                          >
+                          <Button sx={{ marginBlockEnd: "35px" }}>
                             Select Shipping Information
                           </Button>
                         }
@@ -352,10 +308,7 @@ export default function Checkout() {
                         });
                       }}
                       trigger={
-                        <Button
-                          variant="contained"
-                          sx={{ marginBlockEnd: "35px" }}
-                        >
+                        <Button sx={{ marginBlockEnd: "35px" }}>
                           Select Billing Information
                         </Button>
                       }
@@ -421,7 +374,7 @@ export default function Checkout() {
             Order placed, please go to My Orders to confirm!
           </Typography>
           <Box sx={{ textAlign: "center", marginTop: 2 }}>
-            <Button color="primary" variant="contained" href="/account/orders">
+            <Button color="primary" href="/account/orders">
               OK
             </Button>
           </Box>

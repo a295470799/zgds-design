@@ -147,7 +147,6 @@ export default function CartSummary(props: Props) {
         )}
       </Box>
       <Button
-        variant="contained"
         size="medium"
         fullWidth
         sx={{ marginTop: "25px" }}

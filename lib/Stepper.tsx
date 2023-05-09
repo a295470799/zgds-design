@@ -6,12 +6,29 @@ interface StepperProps {
   value: number;
   minValue?: number;
   maxValue?: number;
+  size?: "small" | "medium" | "large";
   onChange: (value: number) => void;
 }
 
 const Stepper: React.FC<StepperProps> = React.memo(
-  ({ value, minValue = 1, maxValue = 999, onChange }) => {
+  ({ value, minValue = 1, maxValue = 9999, onChange, size = "medium" }) => {
     const [currentValue, setCurrentValue] = useState<number>(value);
+
+    const sizeObject = {
+      width: 88,
+      fontSize: 16,
+    };
+
+    switch (size) {
+      case "small":
+        sizeObject.width = 70;
+        sizeObject.fontSize = 12;
+        break;
+      case "large":
+        sizeObject.width = 100;
+        sizeObject.fontSize = 18;
+        break;
+    }
 
     const handleDecrement = useCallback(() => {
       const newValue = currentValue - 1;
@@ -32,13 +49,16 @@ const Stepper: React.FC<StepperProps> = React.memo(
     return (
       <TextField
         type="text"
-        sx={{ width: 95 }}
+        sx={{ width: sizeObject.width }}
         value={currentValue}
         onChange={(event) => {
-          const value =
+          let value =
             Number(event.target.value) >= maxValue
               ? maxValue
               : Number(event.target.value);
+          if (isNaN(value) || value <= 0) {
+            value = 1;
+          }
           setCurrentValue(value);
           onChange(value);
         }}
@@ -51,27 +71,29 @@ const Stepper: React.FC<StepperProps> = React.memo(
               textAlign: "center",
               padding: "6px 0",
               fontSize: 12,
+              minWidth: "20px",
             },
           },
+          autoComplete: "off",
           startAdornment: (
-            <InputAdornment position="start">
+            <InputAdornment position="start" sx={{ margin: 0 }}>
               <IconButton
                 onClick={handleDecrement}
                 disabled={currentValue <= minValue}
                 aria-label="decrement quantity"
               >
-                <RemoveIcon sx={{ fontSize: 16 }} />
+                <RemoveIcon sx={{ fontSize: sizeObject.fontSize }} />
               </IconButton>
             </InputAdornment>
           ),
           endAdornment: (
-            <InputAdornment position="end">
+            <InputAdornment position="end" sx={{ margin: 0 }}>
               <IconButton
                 onClick={handleIncrement}
                 disabled={currentValue >= maxValue}
                 aria-label="increment quantity"
               >
-                <AddIcon sx={{ fontSize: 16 }} />
+                <AddIcon sx={{ fontSize: sizeObject.fontSize }} />
               </IconButton>
             </InputAdornment>
           ),

@@ -282,7 +282,7 @@ export default function Header() {
           </IconButton>
         </StyledSearch>
         <StyledIcons>
-          <IconButton href="/account">
+          <IconButton href="/account" target="_blank">
             <img src={UserIcon} />
           </IconButton>
           <IconButton href="/account/wish">

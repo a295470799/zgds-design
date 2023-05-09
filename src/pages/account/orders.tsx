@@ -8,8 +8,10 @@ import { useRequest } from "ahooks";
 import { useLocation } from "react-router";
 import qs from "query-string";
 import WarningIcon from "@assets/icons/account/WarningCircle.svg";
-import OrderGrid from "@/components/order/OrderGrid";
+import OrderGrid from "@/components/account/order/OrderGrid";
 import { getOrderList } from "@/api/order";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const StyledCardLable = styled("p")`
   color: rgba(255, 255, 255, 0.5);
@@ -49,17 +51,56 @@ const StyledTabButton = styled(Button)<{ badge?: string }>`
 
 export default function () {
   const location = useLocation();
-  const type = (qs.parse(location.search)?.type as string) ?? "";
+  const navigate = useNavigate();
+
+  const locationParams = qs.parse(location.search, {
+    arrayFormat: "comma",
+  }) as API.OrderListParams;
+
+  if (
+    locationParams?.search_date &&
+    typeof locationParams?.search_date == "string"
+  ) {
+    locationParams.search_date = new Array(locationParams.search_date);
+  }
+
+  if (
+    locationParams?.order_type &&
+    typeof locationParams?.order_type == "string"
+  ) {
+    locationParams.order_type = new Array(locationParams.order_type);
+  }
+
+  if (locationParams?.ship_to && typeof locationParams?.ship_to == "string") {
+    locationParams.ship_to = new Array(locationParams.ship_to);
+  }
+
+  const params: API.OrderListParams = Object.assign(
+    {
+      page: 1,
+      page_size: 50,
+      search_date: [],
+      order_type: [],
+      ship_to: [],
+    },
+    locationParams
+  );
 
   const { data: orderList, runAsync: runOrderList } = useRequest<
-    any[],
+    any,
     [API.OrderListParams?]
   >(getOrderList, {
+    defaultParams: [params],
+    debounceWait: 300,
     manual: true,
   });
 
+  useEffect(() => {
+    runOrderList(params);
+  }, [location]);
+
   return (
-    <AccountWrapper code="orders">
+    <AccountWrapper code="orders" title="My Orders">
       <Paper
         sx={(theme) => {
           return {
@@ -89,7 +130,6 @@ export default function () {
         </Box>
       </Paper>
       <Paper
-        elevation={24}
         sx={{
           width: "80%",
           margin: "20px auto",
@@ -102,13 +142,17 @@ export default function () {
         <Typography color={"primary"} fontSize={"1.2rem"} fontWeight={500}>
           You can also <b>PLACE ORDER</b> by
         </Typography>
-        <Button variant="contained" color="success" sx={{ width: "180px" }}>
+        <Button
+          color="success"
+          sx={{ width: "180px" }}
+          onClick={() => navigate("/account/quickOrder")}
+        >
           <Typography fontSize={"1.2rem"} fontWeight={700} marginRight={1}>
             Quick Order
           </Typography>
           <img src={KeyReturnIcon} />
         </Button>
-        <Button variant="contained" color="success" sx={{ width: "180px" }}>
+        <Button color="success" sx={{ width: "180px" }}>
           <Typography fontSize={"1.2rem"} fontWeight={700} marginRight={1}>
             Volume Order
           </Typography>
@@ -116,7 +160,7 @@ export default function () {
         </Button>
       </Paper>
 
-      <Paper elevation={24}>
+      <Paper>
         <Box
           display={"flex"}
           justifyContent={"space-between"}
@@ -136,15 +180,16 @@ export default function () {
               const lowerItem = item.toLowerCase();
               return (
                 <StyledTabButton
+                  variant="text"
                   badge={item}
                   key={item}
                   sx={{ fontSize: "1.2rem", fontWeight: 500 }}
                   onClick={() => {
-                    window.location.href = `/account/orders${
-                      item ? `?type=${lowerItem}` : ""
-                    }`;
+                    navigate(
+                      `/account/orders${item ? `?type=${lowerItem}` : ""}`
+                    );
                   }}
-                  className={type == lowerItem ? "active" : ""}
+                  className={(params?.type ?? "") == lowerItem ? "active" : ""}
                 >
                   {item || "All orders"}
                 </StyledTabButton>
@@ -152,24 +197,19 @@ export default function () {
             })}
           </Box>
           <Box display={"flex"} columnGap={"3px"} fontSize={"1.2rem"}>
-            <Typography fontSize={"inherit"} color={"primary"} fontWeight={700}>
-              80
+            <Typography color={"primary"} fontWeight={700}>
+              {orderList?.total ?? 0}
             </Typography>
-            <Typography
-              fontSize={"inherit"}
-              fontWeight={500}
-              color={"text.secondary"}
-            >
+            <Typography fontWeight={500} color={"text.secondary"}>
               results
             </Typography>
           </Box>
         </Box>
         <Box padding={"10px 20px"}>
           <StyledTabButton
-            onClick={() => {
-              window.location.href = `/account/orders?type=pdf`;
-            }}
-            className={type == "pdf" ? "active" : ""}
+            variant="text"
+            onClick={() => navigate("/account/orders?type=pdf")}
+            className={params?.type == "pdf" ? "active" : ""}
           >
             <Typography
               color={"secondary"}
@@ -183,7 +223,24 @@ export default function () {
           </StyledTabButton>
         </Box>
 
-        <OrderGrid type={type} rowData={orderList} onChange={runOrderList} />
+        <OrderGrid
+          type={params?.type}
+          rowData={orderList}
+          onChange={(data) => {
+            navigate(
+              qs.stringifyUrl(
+                {
+                  url: "/account/orders",
+                  query: data,
+                },
+                {
+                  arrayFormat: "comma",
+                }
+              )
+            );
+          }}
+          defaultParams={params}
+        />
       </Paper>
     </AccountWrapper>
   );

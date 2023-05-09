@@ -116,7 +116,7 @@ export default function () {
         }}
       >
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography color="inherit" fontSize="2.0rem" fontWeight={700}>
+          <Typography fontSize="2.0rem" fontWeight={700}>
             PERSONAL INFO
           </Typography>
           <Link
@@ -162,7 +162,7 @@ export default function () {
         </Box>
       </Paper>
 
-      <StyledCard elevation={24}>
+      <StyledCard>
         <StyledCardTitle>BASIC CUSTOMER INFORMATION</StyledCardTitle>
         <Box component={"ul"} display={"flex"} flexWrap={"wrap"}>
           <StyledLiItem>
@@ -195,7 +195,7 @@ export default function () {
         </Box>
       </StyledCard>
 
-      <StyledCard elevation={24}>
+      <StyledCard>
         <StyledCardTitle>BASIC CUSTOMER INFORMATION-ADD.</StyledCardTitle>
         <Box component={"ul"} display={"flex"} flexWrap={"wrap"}>
           <StyledLiItem>
@@ -219,7 +219,7 @@ export default function () {
         </Box>
       </StyledCard>
 
-      <StyledCard elevation={24}>
+      <StyledCard>
         <StyledCardTitle>CLIENT ATTRIBUTION</StyledCardTitle>
         <Box component={"ul"} display={"flex"} flexWrap={"wrap"}>
           <StyledLiItem>
@@ -234,7 +234,7 @@ export default function () {
         </Box>
       </StyledCard>
 
-      <StyledCard elevation={24}>
+      <StyledCard>
         <StyledCardTitle>
           <span>PARTNERS INFORMATION</span>
           <Tabs
@@ -454,9 +454,7 @@ export default function () {
             <Button variant="outlined" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained">
-              Submit
-            </Button>
+            <Button type="submit">Submit</Button>
           </DialogActions>
         </FormContainer>
       </Dialog>

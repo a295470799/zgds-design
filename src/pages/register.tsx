@@ -74,7 +74,7 @@ export default function Register() {
     const res = await getCountrys();
     return res?.map((item: any) => {
       return {
-        id: item.id,
+        id: item.area_code,
         label: item.area_name_en,
       };
     });
@@ -153,7 +153,7 @@ export default function Register() {
           sx={{ minWidth: 230 }}
           options={companyZoneInfo?.map((item: any) => {
             return {
-              id: item.id,
+              id: item.area_code,
               label: item.area_name_en,
             };
           })}
@@ -334,13 +334,7 @@ export default function Register() {
         />
 
         <StyledFormSubmit>
-          <Button
-            type="submit"
-            variant="contained"
-            color="success"
-            size="large"
-            fullWidth
-          >
+          <Button type="submit" color="success" size="large" fullWidth>
             REGISTER
           </Button>
         </StyledFormSubmit>

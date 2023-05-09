@@ -471,7 +471,6 @@ const ProductList: React.FC<Props> = ({ id }) => {
                           </Box>
                           <Button
                             fullWidth
-                            variant="contained"
                             color="dark"
                             onClick={() => {
                               handleAddToCart(item.id, index);

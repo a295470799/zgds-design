@@ -1,4 +1,4 @@
-import { formatPrice, formateDate } from "@/utils/format";
+import { formatPrice, formatBeijingDate, formatDate } from "@/utils/format";
 import {
   Box,
   Button,
@@ -23,8 +23,6 @@ import "@/styles/react-datepicker.css";
 import { useSetState } from "ahooks";
 import MultipleSelectElement from "#lib/MultipleSelectElement";
 import CheckSquareIcon from "@assets/icons/account/CheckSquare-r.svg";
-import XSquareIcon from "@assets/icons/account/XSquare-r.svg";
-import { cancelOrders, confirmOrders } from "@/api/order";
 import { enqueueSnackbar } from "notistack";
 
 const StyledActionButton = styled(Button)`
@@ -38,16 +36,17 @@ const StyledActionButton = styled(Button)`
 type State = {
   params?: API.OrderListParams;
   gridOptions: GridOptions;
+  gridDetailOptions: GridOptions;
+  gridPartnersOptions: GridOptions;
 };
 
 type Props = {
   rowData: any;
-  type?: string;
   onChange: (params?: API.OrderListParams) => void;
 };
 
-const OrderGrid: React.FC<Props> = (props) => {
-  const { type, rowData, onChange } = props;
+const CIGrid: React.FC<Props> = (props) => {
+  const { rowData, onChange } = props;
 
   const checkboxSelection = function (params: any) {
     // we put checkbox on the name if we are not doing grouping
@@ -64,25 +63,20 @@ const OrderGrid: React.FC<Props> = (props) => {
   };
 
   const dateFormatter = (params: any) => {
-    return formateDate(params.value, true);
-  };
-
-  const editOrder = (id: string) => {
-    window.location.href = "/account/orderShow?type=edit&id=" + id;
+    return formatDate(params.value, true);
   };
 
   const showOrder = (id: string) => {
     window.location.href = "/account/orderShow?type=show&id=" + id;
   };
 
-  const showCheckbox = type == "pending" || type == "pdf";
-
   const columnDefs: ColDef[] = [
     {
-      field: "number",
-      headerName: "Order",
-      checkboxSelection: showCheckbox ? checkboxSelection : false,
-      headerCheckboxSelection: showCheckbox ? headerCheckboxSelection : false,
+      field: "invoiceNumber",
+      headerName: "CI NO.",
+      width: 200,
+      checkboxSelection: checkboxSelection,
+      headerCheckboxSelection: headerCheckboxSelection,
     },
     {
       headerName: "Action",
@@ -90,16 +84,6 @@ const OrderGrid: React.FC<Props> = (props) => {
         return (
           <Box>
             <StyledActionButton
-              variant="contained"
-              color="success"
-              sx={{ marginRight: 1 }}
-              onClick={() => editOrder(params.data.id)}
-              disabled={params.data.status != "0"}
-            >
-              Edit
-            </StyledActionButton>
-            <StyledActionButton
-              variant="contained"
               color="primary"
               onClick={() => showOrder(params.data.id)}
             >
@@ -109,37 +93,106 @@ const OrderGrid: React.FC<Props> = (props) => {
         );
       },
     },
-    { field: "eya_number", headerName: "Order ID" },
+    { field: "orderNumber", headerName: "Order" },
+    { field: "orderId", headerName: "Order ID" },
+    { field: "oldOrderId", headerName: "Order ID (old)" },
+    { field: "oldInvoiceNumber", headerName: "CI NO. (old)" },
     { field: "customContractId", headerName: "PO NO." },
-    { field: "status_str", headerName: "Status" },
-    { field: "order_type", headerName: "Order Type" },
-    { field: "invoiceNumber", headerName: "Invoice NO." },
-    { field: "shipping_country", headerName: "Ship to" },
-    { field: "snaps_count", headerName: "Item" },
+    { field: "customerName", headerName: "Client name" },
+    { field: "invoiceBusinessTypeValue", headerName: "Invoice type" },
+    { field: "currencyCode", headerName: "Currency" },
+    { field: "fromCountryCode", headerName: "From country" },
+    { field: "fromProvinceCode", headerName: "From province" },
+    { field: "destCountryCode", headerName: "To country" },
+    { field: "destProvinceCode", headerName: "To province" },
+    { field: "paymentConditionValue", headerName: "Price term" },
+    { field: "tradeClauseCode", headerName: "Trade term" },
     {
-      field: "total_price",
-      headerName: "Total Amount",
+      field: "orderTotalAmount",
+      headerName: "Order total",
       valueFormatter: currencyFormatter,
     },
     {
-      field: "created_at",
-      headerName: "Order Date",
-      sortable: true,
-      unSortIcon: true,
-      valueFormatter: dateFormatter,
+      field: "orderTaxAmount",
+      headerName: "Tax",
+      valueFormatter: currencyFormatter,
+    },
+    { field: "orderTaxRadio", headerName: "Tax rate" },
+    {
+      field: "orderFreight",
+      headerName: "Shipping",
+      valueFormatter: currencyFormatter,
     },
     {
-      field: "updated_at",
-      headerName: "Update Date",
+      field: "invoiceDate",
+      headerName: "Invoice Date",
       sortable: true,
       unSortIcon: true,
       valueFormatter: dateFormatter,
     },
   ];
 
+  const columnDetailDefs: ColDef[] = [
+    { field: "orderId", headerName: "Order ID" },
+    { field: "invoiceNumberCode", headerName: "CI NO." },
+    { field: "productMainCode", headerName: "SKU" },
+    { field: "productNameEn", headerName: "Product" },
+    { field: "skuNumber", headerName: "Qty" },
+    { field: "customDisplayCode", headerName: "Customer's SKU" },
+    {
+      field: "excludingTaxPrices",
+      headerName: "ex.Tax Total",
+      valueFormatter: currencyFormatter,
+    },
+    {
+      field: "skuFreight",
+      headerName: "Shipping",
+      valueFormatter: currencyFormatter,
+    },
+    {
+      field: "skuTaxAmount",
+      headerName: "Tax",
+      valueFormatter: currencyFormatter,
+    },
+    {
+      field: "includingTaxPrices",
+      headerName: "incl.Tax Total",
+      valueFormatter: currencyFormatter,
+    },
+    { field: "skuTaxRadio", headerName: "Tax rate" },
+    {
+      field: "sellingPrice",
+      headerName: "Selling Price",
+      valueFormatter: currencyFormatter,
+    },
+    {
+      field: "includeTaxPrice",
+      headerName: "incl.Tax Unit",
+      valueFormatter: currencyFormatter,
+    },
+    {
+      field: "excludeTaxPrice",
+      headerName: "ex.Tax Unit",
+      valueFormatter: currencyFormatter,
+    },
+  ];
+
+  const columnPartnersDefs: ColDef[] = [
+    { field: "partnerType", headerName: "Partner type" },
+    { field: "partnerName", headerName: "Partner name" },
+    { field: "contractName", headerName: "Contact name" },
+    { field: "contractAddress1", headerName: "Add1" },
+    { field: "contractAddress2", headerName: "Add2" },
+    { field: "contractPhone", headerName: "Phone" },
+    { field: "contractEmail", headerName: "Mail" },
+    { field: "contractCountryCode", headerName: "Country" },
+    { field: "contractStateyCode", headerName: "Province" },
+    { field: "contractCityCode", headerName: "City" },
+    { field: "contractPostalCode", headerName: "Postcode" },
+  ];
+
   const [state, setState] = useSetState<State>({
     params: {
-      type,
       page: 1,
       page_size: 50,
     },
@@ -155,6 +208,29 @@ const OrderGrid: React.FC<Props> = (props) => {
       onSortChanged: onChange,
       columnDefs: columnDefs,
     },
+    gridDetailOptions: {
+      defaultColDef: {
+        initialWidth: 140,
+        resizable: true,
+        filter: true,
+        sortable: true,
+        floatingFilter: true,
+      },
+      ensureDomOrder: true,
+      enableCellTextSelection: true,
+      columnDefs: columnDetailDefs,
+      rowData: [],
+    },
+    gridPartnersOptions: {
+      defaultColDef: {
+        initialWidth: 140,
+        resizable: true,
+      },
+      ensureDomOrder: true,
+      enableCellTextSelection: true,
+      columnDefs: columnPartnersDefs,
+      rowData: [],
+    },
   });
 
   const handleSearch = (value: any) => {
@@ -168,32 +244,10 @@ const OrderGrid: React.FC<Props> = (props) => {
     ) {
       searchParams.search_date = searchParams.search_date
         .filter((item: string) => item)
-        .map((item: string) => new Date(item).toLocaleDateString());
+        .map((item: string) => formatBeijingDate(item));
     }
     setState({ params: searchParams });
     onChange(searchParams);
-  };
-
-  const handleConfirmOrders = async () => {
-    const ids = state.gridOptions?.api
-      ?.getSelectedRows()
-      ?.map((item) => item.id);
-    if (Array.isArray(ids) && ids.length > 0) {
-      await confirmOrders(ids);
-      enqueueSnackbar("Success!", { variant: "success" });
-      handleSearch(state.params);
-    }
-  };
-
-  const handleCancelOrders = async () => {
-    const ids = state.gridOptions?.api
-      ?.getSelectedRows()
-      ?.map((item) => item.id);
-    if (Array.isArray(ids) && ids.length > 0) {
-      await cancelOrders(ids);
-      enqueueSnackbar("Success!", { variant: "success" });
-      handleSearch(state.params);
-    }
   };
 
   return (
@@ -253,7 +307,7 @@ const OrderGrid: React.FC<Props> = (props) => {
                     selectsRange
                     customInput={
                       <TextField
-                        label="Order Date"
+                        label="Invoice Date"
                         value={value ?? ""}
                         inputRef={ref}
                         InputProps={{
@@ -278,17 +332,6 @@ const OrderGrid: React.FC<Props> = (props) => {
 
             <Box width={"48%"} marginTop={"15px"}>
               <MultipleSelectElement
-                name="order_type"
-                options={[
-                  { id: "Dropship", label: "Dropship" },
-                  { id: "Batch order", label: "Batch order" },
-                ]}
-                label="Order Type"
-              />
-            </Box>
-
-            <Box width={"48%"} marginTop={"15px"}>
-              <MultipleSelectElement
                 name="ship_to"
                 options={[
                   { id: "DE", label: "DE" },
@@ -300,62 +343,47 @@ const OrderGrid: React.FC<Props> = (props) => {
               />
             </Box>
 
+            <Box width={"48%"} marginTop={"15px"}>
+              <MultipleSelectElement
+                name="freeFaxNumber"
+                options={[{ id: "DE266182271", label: "DE266182271" }]}
+                label="VAT NO"
+              />
+            </Box>
+
             <TextFieldElement
               sx={{ width: "48%" }}
               name="keyword"
               label="Search for"
-              placeholder="Order/Order ID/PO NO./SKU"
+              placeholder="Input CI NO./Order/Order ID"
               InputProps={{
                 autoComplete: "off",
               }}
             />
           </Box>
-          <Button
-            variant="contained"
-            type="submit"
-            color="success"
-            size="medium"
-          >
+          <Button type="submit" color="success" size="medium">
             Search
           </Button>
         </Box>
       </FormContainer>
-      {type == "pending" && (
-        <Box display={"flex"} columnGap={2} padding={"20px 20px 0"}>
-          <Button
-            variant="contained"
-            color="success"
-            size="medium"
-            onClick={handleConfirmOrders}
-          >
-            Confirm selected
-            <img src={CheckSquareIcon} style={{ marginLeft: "5px" }} />
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            size="medium"
-            onClick={handleCancelOrders}
-          >
-            Cancel selected
-            <img src={XSquareIcon} style={{ marginLeft: "5px" }} />
-          </Button>
-        </Box>
-      )}
-
-      {type == "pdf" && (
-        <Box display={"flex"} columnGap={2} padding={"20px 20px 0"}>
-          <Button variant="contained" color="success" size="medium">
-            <img src={CheckSquareIcon} style={{ marginRight: "5px" }} />
-            Download PI PDF
-          </Button>
-        </Box>
-      )}
+      <Box display={"flex"} columnGap={2} padding={"20px 20px 0"}>
+        <Button color="success" size="medium">
+          <img src={CheckSquareIcon} style={{ marginRight: "5px" }} />
+          Download CI PDF
+        </Button>
+      </Box>
       <Box
         width={930}
         height={500}
         className="ag-theme-alpine"
         marginTop={"20px"}
+        sx={(theme) => {
+          return {
+            ".ag-header-cell-text, .ag-cell-value, .ag-group-value": {
+              color: theme.palette.text.third,
+            },
+          };
+        }}
       >
         <AgGridReact
           rowData={rowData?.data}
@@ -372,6 +400,12 @@ const OrderGrid: React.FC<Props> = (props) => {
               });
             handleSearch({ sort: sort ?? [] });
           }}
+          onFirstDataRendered={(event) => {
+            const allColumnIds: any[] =
+              event.columnApi?.getColumns()?.map((column) => column.getId()) ??
+              [];
+            event.columnApi?.autoSizeColumns(allColumnIds, false);
+          }}
         ></AgGridReact>
       </Box>
       <Box
@@ -381,9 +415,9 @@ const OrderGrid: React.FC<Props> = (props) => {
         padding={"20px"}
       >
         <Box display={"flex"} alignItems={"center"} columnGap={1}>
-          <Typography>View</Typography>
+          <Typography fontSize={"1.4rem"}>View</Typography>
           <Select
-            sx={{ height: "30px" }}
+            sx={{ height: "30px", fontSize: "1.4rem" }}
             value={state.params?.page_size}
             onChange={(e) => {
               handleSearch({ page_size: e.target.value as number });
@@ -397,7 +431,7 @@ const OrderGrid: React.FC<Props> = (props) => {
               );
             })}
           </Select>
-          <Typography>Per Page</Typography>
+          <Typography fontSize={"1.4rem"}>Per Page</Typography>
         </Box>
         <Pagination
           sx={{
@@ -418,4 +452,4 @@ const OrderGrid: React.FC<Props> = (props) => {
   );
 };
 
-export default OrderGrid;
+export default CIGrid;

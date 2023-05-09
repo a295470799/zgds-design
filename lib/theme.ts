@@ -37,9 +37,16 @@ const theme = createTheme({
     htmlFontSize: 10,
   },
   components: {
+    MuiTypography: {
+      defaultProps: {
+        fontSize: "inherit",
+        fontWeight: "inherit",
+        color: "inherit",
+      },
+    },
     MuiPaper: {
       defaultProps: {
-        elevation: 3,
+        elevation: 24,
       },
       styleOverrides: {
         elevation24: {
@@ -63,6 +70,7 @@ const theme = createTheme({
     MuiButton: {
       defaultProps: {
         size: "small",
+        variant: "contained",
       },
       styleOverrides: {
         sizeSmall: {

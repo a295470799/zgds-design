@@ -146,4 +146,84 @@ declare namespace API {
     sort?: any[];
     type?: string;
   };
+
+  type InvoiceListParams = {
+    keyword?: string;
+    search_date?: string[];
+    freeFaxNumber?: string[];
+    ship_to?: string[];
+    page?: number;
+    page_size?: number;
+    sort?: any[];
+    type?: string;
+  };
+
+  type ShippingParams = {
+    shipping_name: string;
+    shipping_email: string;
+    shipping_phone: string;
+    shipping_country_code: string;
+    shipping_city: string;
+    shipping_zone: string;
+    shipping_postcode: string;
+    shipping_address: string;
+  };
+
+  type OrderDetailAddressParams = {
+    name?: string;
+    shortname?: string;
+    email?: string;
+    phone?: string;
+    taxNumber?: string;
+    country?: string;
+    countryCode?: string;
+    zone?: string;
+    zoneCode?: string;
+    city?: string;
+    postcode?: string;
+    address?: string;
+  };
+
+  type UpdateOrderParams = {
+    order_id: number;
+    skuItems: {
+      sku: string;
+      count: number;
+    }[];
+    shipTo: string;
+    billTo: string;
+    action: "update" | "get";
+  } & ShippingParams;
+
+  type OrderInfo = {
+    id?: number;
+    status?: number;
+    orderNumber?: string;
+    orderTime?: string;
+    orderType?: string;
+    statusStr?: string;
+    priceTerm?: string;
+    tradeTerm?: string;
+    deliveryDateF?: string;
+    deliveryDateT?: string;
+    paymentTerm?: string;
+    items: number;
+    tax: string;
+    shippingCost: string;
+    totalAmount: string;
+    productList: any[];
+    shippingInfo?: OrderDetailAddressParams;
+    billingInfo?: OrderDetailAddressParams;
+    shipTo?: string;
+    billTo?: string;
+    orderInformation?: any[];
+    palletInformation?: any[];
+    orderTrack?: any[];
+    timeLine?: {
+      title: string;
+      content: string;
+    }[];
+    countrys?: any[];
+    zones?: any[];
+  };
 }
