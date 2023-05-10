@@ -1,5 +1,5 @@
 import Layout from "#lib/Layout";
-import OrderAddress from "@/components/account/order/OrderAddress";
+import OrderAddress from "@/components/account/orderDetail/OrderAddress";
 import {
   Box,
   Button,
@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import OrderTimeline from "@/components/account/order/OrderTimeline";
+import OrderTimeline from "@/components/account/orderDetail/OrderTimeline";
 import { formatDate, formatPrice } from "@/utils/format";
 import CheckCircleIcon from "@assets/icons/account/CheckCircle.svg";
 import ProhibitIcon from "@assets/icons/account/Prohibit.svg";
@@ -23,15 +23,17 @@ import CalendarIcon from "@assets/icons/account/Calendar-r.svg";
 import CircleWavyWarningIcon from "@assets/icons/account/CircleWavyWarning.svg";
 import { styled } from "@mui/material/styles";
 import { useConfirm } from "#lib/ConfirmProvider";
+import { useMessage } from "#lib/MessageProvider";
 import { useRequest, useUpdateEffect } from "ahooks";
-import OrderDetailTable from "@/components/account/order/OrderDetailTable";
+import ProductTable from "@/components/account/orderDetail/ProductTable";
 import { cancelOrders, getOrder, updateOrder } from "@/api/order";
 import qs from "query-string";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import { checkSku } from "@/api/common";
-import OrderPackageInfo from "@/components/account/order/OrderPackageInfo";
+import OrderPackageInfo from "@/components/account/orderDetail/OrderPackageInfo";
+import BackIcon from "@assets/icons/account/back.svg";
 
 const StyledFulfilled = styled(Box)<{ fulfilled: number }>`
   display: flex;
@@ -47,6 +49,8 @@ export default function OrderDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const { confirm } = useConfirm();
+  const { msg } = useMessage();
+
   const { type, id } = qs.parse(location.search);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -120,14 +124,6 @@ export default function OrderDetails() {
 
   const goBack = () => {
     navigate(-1);
-    // navigate(
-    //   `/account/orders${
-    //     location?.state?.type ? "?type=" + location?.state?.type : ""
-    //   }`,
-    //   {
-    //     state: location.state,
-    //   }
-    // );
   };
 
   const onSubmit = async (data: API.ShippingParams) => {
@@ -138,14 +134,11 @@ export default function OrderDetails() {
     };
     setOrderParams(params);
     await runUpdateOrder(params);
-    enqueueSnackbar("Successfully!", {
-      variant: "success",
-      autoHideDuration: 3000,
-    });
 
-    setTimeout(() => {
-      goBack();
-    }, 3000);
+    msg({
+      message: "Successfully!",
+      onConfirm: goBack,
+    });
   };
 
   const handleQtyChange = async (sku: string, count: number) => {
@@ -224,7 +217,12 @@ export default function OrderDetails() {
         message: "Are you sure to cancel this order?",
         async onConfirm() {
           await cancelOrders([orderParams.order_id]);
-          window.location.reload();
+          msg({
+            message: "Cancel successfully!",
+            onConfirm() {
+              window.location.reload();
+            },
+          });
         },
       });
     } else {
@@ -246,7 +244,8 @@ export default function OrderDetails() {
         <Box display={"flex"} justifyContent={"space-between"}>
           <Box flex={"0 0 auto"} width={"260px"} padding={"0 25px 20px"}>
             <Button onClick={goBack}>
-              <Typography fontSize={"1.2rem"}>
+              <img src={BackIcon} />
+              <Typography fontSize={"1.2rem"} ml={1}>
                 Back to <b>My Orders</b>
               </Typography>
             </Button>
@@ -442,7 +441,7 @@ export default function OrderDetails() {
                 </Box>
               </Box>
 
-              <OrderDetailTable
+              <ProductTable
                 type="edit"
                 status={orderInfo?.status}
                 productList={orderInfo?.productList ?? []}

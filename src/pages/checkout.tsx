@@ -11,7 +11,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Dialog,
   Paper,
   Typography,
 } from "@mui/material";
@@ -24,6 +23,7 @@ import {
   SelectElement,
   TextFieldElement,
 } from "react-hook-form-mui";
+import { useMessage } from "#lib/MessageProvider";
 
 type CheckoutState = {
   dialogOpen: boolean;
@@ -41,6 +41,7 @@ export default function Checkout() {
   const [state, setState] = useSetState<CheckoutState>({
     dialogOpen: true,
   });
+  const { msg } = useMessage();
 
   // 获取Checkout数据
   const { data: checkoutData, run: runCheckoutData } = useRequest<
@@ -134,11 +135,10 @@ export default function Checkout() {
   };
 
   // 获取国家信息
-  const {
-    data: placeOrderResult,
-    loading,
-    runAsync: runPlaceOrder,
-  } = useRequest<any, [API.CreateOrderParams]>(createOrder, {
+  const { loading, runAsync: runPlaceOrder } = useRequest<
+    any,
+    [API.CreateOrderParams]
+  >(createOrder, {
     manual: true,
   });
 
@@ -156,7 +156,7 @@ export default function Checkout() {
       return;
     }
 
-    runPlaceOrder({
+    await runPlaceOrder({
       orderTypeCode: state.checkOutType ?? "",
       shipTo: state.shipping?.partnerCode ?? "",
       billTo: state.billing?.partnerCode ?? "",
@@ -172,6 +172,13 @@ export default function Checkout() {
       tradeClauseCode: data.tradeClauseCode ?? "",
       pricingTradeClauseCode: data.pricingTradeClauseCode ?? "",
       customContractId: data.customContractId ?? "",
+    });
+
+    msg({
+      message: "Order placed, please go to My Orders to confirm!",
+      onConfirm() {
+        window.location.href = "/account/orders";
+      },
     });
   };
 
@@ -295,27 +302,25 @@ export default function Checkout() {
                   }
                 />
               )}
-              <CheckoutCard
-                addressInfo={state.billing}
-                children={
-                  (addressInfo?.billing?.length ?? 0) > 1 && (
-                    <AddressModal
-                      type="billing"
-                      addresses={addressInfo?.billing ?? []}
-                      onSelect={(address) => {
-                        setState({
-                          billing: address,
-                        });
-                      }}
-                      trigger={
-                        <Button sx={{ marginBlockEnd: "35px" }}>
-                          Select Billing Information
-                        </Button>
-                      }
-                    />
-                  )
-                }
-              />
+              <CheckoutCard addressInfo={state.billing}>
+                {(addressInfo?.billing?.length ?? 0) > 1 && (
+                  <AddressModal
+                    type="billing"
+                    addresses={addressInfo?.billing ?? []}
+                    onSelect={(address) => {
+                      setState({
+                        billing: address,
+                      });
+                    }}
+                    trigger={
+                      <Button sx={{ marginBlockEnd: "35px" }}>
+                        Select Billing Information
+                      </Button>
+                    }
+                  />
+                )}
+              </CheckoutCard>
+
               {state.checkOutType == "Batch order" && (
                 <Paper
                   sx={{
@@ -361,25 +366,6 @@ export default function Checkout() {
           </Box>
         </FormContainer>
       )}
-      <Dialog
-        open={placeOrderResult != undefined}
-        PaperProps={{
-          sx: {
-            width: "300px",
-          },
-        }}
-      >
-        <Box sx={{ padding: "30px" }}>
-          <Typography fontSize="1.4rem" textAlign="center">
-            Order placed, please go to My Orders to confirm!
-          </Typography>
-          <Box sx={{ textAlign: "center", marginTop: 2 }}>
-            <Button color="primary" href="/account/orders">
-              OK
-            </Button>
-          </Box>
-        </Box>
-      </Dialog>
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}

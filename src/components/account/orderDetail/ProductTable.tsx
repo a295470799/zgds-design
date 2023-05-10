@@ -61,7 +61,7 @@ type Props = {
   onQtyChange?: (sku: string, qty: number) => void;
   onAddSku?: (open: boolean) => void;
 };
-const OrderDetailTable: React.FC<Props> = (props) => {
+const ProductTable: React.FC<Props> = (props) => {
   const {
     type,
     status = -1,
@@ -301,4 +301,4 @@ const OrderDetailTable: React.FC<Props> = (props) => {
   );
 };
 
-export default OrderDetailTable;
+export default ProductTable;

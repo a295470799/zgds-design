@@ -2,8 +2,6 @@ import {
   Box,
   Dialog,
   DialogContent,
-  DialogTitle,
-  IconButton,
   Tab,
   Table,
   TableBody,
@@ -12,8 +10,8 @@ import {
   TableRow,
   Tabs,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
+import BootstrapDialogTitle from "#lib/BootstrapDialogTitle";
 
 type Props = {
   open: boolean;
@@ -22,40 +20,10 @@ type Props = {
   palletInformation?: any[];
 };
 
-type DialogTitleProps = {
-  id: string;
-  children?: React.ReactNode;
-  onClose: () => void;
-};
-
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
-}
-
-function BootstrapDialogTitle(props: DialogTitleProps) {
-  const { children, onClose, ...other } = props;
-
-  return (
-    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
-      {children}
-      {onClose ? (
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 10,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      ) : null}
-    </DialogTitle>
-  );
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -88,8 +56,8 @@ const OrderPackageInfo: React.FC<Props> = (props) => {
   };
 
   return (
-    <Dialog open={open} maxWidth="md" aria-labelledby="customized-dialog-title">
-      <BootstrapDialogTitle id="customized-dialog-title" onClose={onClose}>
+    <Dialog open={open} maxWidth="md">
+      <BootstrapDialogTitle onClose={onClose}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={value}

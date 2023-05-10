@@ -10,24 +10,27 @@ import { SnackbarProvider } from "notistack";
 import { HelmetProvider } from "react-helmet-async";
 import Grow from "@mui/material/Grow";
 import { ConfirmProvider } from "#lib/ConfirmProvider";
+import { MessageProvider } from "#lib/MessageProvider";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <ConfirmProvider>
-        <HelmetProvider>
-          <SnackbarProvider
-            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-            TransitionComponent={Grow}
-            autoHideDuration={4000}
-          >
-            <div id="back-to-top-anchor"></div>
-            <CssBaseline />
-            <App />
-            <BackToTop />
-          </SnackbarProvider>
-        </HelmetProvider>
-      </ConfirmProvider>
+      <MessageProvider>
+        <ConfirmProvider>
+          <HelmetProvider>
+            <SnackbarProvider
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              TransitionComponent={Grow}
+              autoHideDuration={4000}
+            >
+              <div id="back-to-top-anchor"></div>
+              <CssBaseline />
+              <App />
+              <BackToTop />
+            </SnackbarProvider>
+          </HelmetProvider>
+        </ConfirmProvider>
+      </MessageProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

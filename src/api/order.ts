@@ -215,3 +215,47 @@ export const getOrUpdateOrder = async (
     return {} as API.OrderInfo;
   });
 };
+
+/**
+ * 创建Drop订单
+ * @returns
+ */
+export const createdropOrders = async (data: FormData) => {
+  return request({
+    method: "POST",
+    url: "/api/account/createOrders_drop",
+    data,
+  }).then((res) => {
+    return res;
+  });
+};
+
+/**
+ * 快捷下单
+ * @returns
+ */
+export const createQuickOrder = async (data: API.CreateOrderParams) => {
+  return request({
+    method: "POST",
+    url: "/api/account/createOrders2",
+    data,
+    isShowError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 上传Quick Order SKU表格
+ * @returns
+ */
+export const uploadQuickOrderSku = async (data: FormData) => {
+  return request({
+    method: "POST",
+    url: "/api/account/uploadSku",
+    data,
+    isShowError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};

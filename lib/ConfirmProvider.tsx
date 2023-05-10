@@ -1,8 +1,8 @@
 import { createContext, useState, useCallback, useMemo } from "react";
-import { Dialog, DialogTitle, Button, IconButton, Box } from "@mui/material";
+import { Dialog, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CloseIcon from "@mui/icons-material/Close";
 import { useContext } from "react";
+import BootstrapDialogTitle from "./BootstrapDialogTitle";
 
 interface ConfirmDialog {
   open: boolean;
@@ -34,47 +34,6 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     padding: theme.spacing(1),
   },
 }));
-
-interface DialogTitleProps {
-  id: string;
-  children?: React.ReactNode;
-  onClose: () => void;
-}
-
-function BootstrapDialogTitle(props: DialogTitleProps) {
-  const { children, onClose, ...other } = props;
-
-  return (
-    <DialogTitle
-      sx={(theme) => {
-        return {
-          background: theme.palette.primary.main,
-          color: theme.palette.common.white,
-          fontSize: "1.4rem",
-          padding: "9px 24px",
-          textAlign: "center",
-        };
-      }}
-      {...other}
-    >
-      {children}
-      {onClose ? (
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 5,
-            color: (theme) => theme.palette.common.white,
-          }}
-        >
-          <CloseIcon sx={{ fontSize: "2rem" }} />
-        </IconButton>
-      ) : null}
-    </DialogTitle>
-  );
-}
 
 const ConfirmProvider: React.FC<ConfirmProviderProps> = ({ children }) => {
   const [dialog, setDialog] = useState<ConfirmDialog | null>(null);
@@ -122,14 +81,19 @@ const ConfirmProvider: React.FC<ConfirmProviderProps> = ({ children }) => {
     <ConfirmContext.Provider value={contextValue}>
       {children}
       {dialog && (
-        <BootstrapDialog
-          aria-labelledby="customized-dialog-title"
-          open={true}
-          maxWidth="xs"
-        >
+        <BootstrapDialog open={true} maxWidth="xs">
           <BootstrapDialogTitle
-            id="customized-dialog-title"
             onClose={handleClose}
+            titleSx={{
+              padding: "9px 24px",
+              textAlign: "center",
+              background: (theme) => theme.palette.primary.main,
+              color: (theme) => theme.palette.common.white,
+            }}
+            closeSx={{
+              top: 5,
+              color: (theme) => theme.palette.common.white,
+            }}
           >
             {dialog?.title ?? "CONFIRMATION"}
           </BootstrapDialogTitle>

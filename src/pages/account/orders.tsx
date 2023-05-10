@@ -8,10 +8,11 @@ import { useRequest } from "ahooks";
 import { useLocation } from "react-router";
 import qs from "query-string";
 import WarningIcon from "@assets/icons/account/WarningCircle.svg";
-import OrderGrid from "@/components/account/order/OrderGrid";
+import OrderGrid from "@/components/account/orders/OrderGrid";
 import { getOrderList } from "@/api/order";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import VolumeOrder from "@/components/account/orders/VolumeOrder";
 
 const StyledCardLable = styled("p")`
   color: rgba(255, 255, 255, 0.5);
@@ -28,7 +29,6 @@ const StyledTabButton = styled(Button)<{ badge?: string }>`
   position: relative;
   &.active {
     background: #f8f9fa;
-    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-radius: 5px;
     font-weight: 700;
@@ -52,6 +52,8 @@ const StyledTabButton = styled(Button)<{ badge?: string }>`
 export default function () {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [volumeOrder, setVolumeOrder] = useState(false);
 
   const locationParams = qs.parse(location.search, {
     arrayFormat: "comma",
@@ -152,7 +154,11 @@ export default function () {
           </Typography>
           <img src={KeyReturnIcon} />
         </Button>
-        <Button color="success" sx={{ width: "180px" }}>
+        <Button
+          color="success"
+          sx={{ width: "180px" }}
+          onClick={() => setVolumeOrder(true)}
+        >
           <Typography fontSize={"1.2rem"} fontWeight={700} marginRight={1}>
             Volume Order
           </Typography>
@@ -241,6 +247,8 @@ export default function () {
           }}
           defaultParams={params}
         />
+
+        <VolumeOrder open={volumeOrder} onClose={() => setVolumeOrder(false)} />
       </Paper>
     </AccountWrapper>
   );

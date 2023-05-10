@@ -134,6 +134,10 @@ declare namespace API {
     tradeClauseCode: string;
     pricingTradeClauseCode?: string;
     customContractId?: string;
+    skuItems?: {
+      sku: string;
+      count: number;
+    }[];
   };
 
   type OrderListParams = {
