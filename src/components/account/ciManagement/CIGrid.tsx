@@ -23,7 +23,8 @@ import "@/styles/react-datepicker.css";
 import { useSetState } from "ahooks";
 import MultipleSelectElement from "#lib/MultipleSelectElement";
 import CheckSquareIcon from "@assets/icons/account/CheckSquare-r.svg";
-import { enqueueSnackbar } from "notistack";
+import CIDetail from "./CIDetail";
+import { getInvoiceInfo } from "@/api/account";
 
 const StyledActionButton = styled(Button)`
   height: 22px;
@@ -34,15 +35,18 @@ const StyledActionButton = styled(Button)`
 `;
 
 type State = {
-  params?: API.OrderListParams;
+  open: boolean;
+  params?: API.InvoiceListParams;
   gridOptions: GridOptions;
   gridDetailOptions: GridOptions;
   gridPartnersOptions: GridOptions;
+  gridDetailData?: any[];
+  gridPartnersData?: any[];
 };
 
 type Props = {
   rowData: any;
-  onChange: (params?: API.OrderListParams) => void;
+  onChange: (params?: API.InvoiceListParams) => void;
 };
 
 const CIGrid: React.FC<Props> = (props) => {
@@ -66,8 +70,18 @@ const CIGrid: React.FC<Props> = (props) => {
     return formatDate(params.value, true);
   };
 
-  const showOrder = (id: string) => {
-    window.location.href = "/account/orderShow?type=show&id=" + id;
+  const showDetail = async (invoiceNumber: string) => {
+    setState({
+      open: true,
+      gridDetailData: [],
+      gridPartnersData: [],
+    });
+
+    const res = await getInvoiceInfo(invoiceNumber);
+    setState({
+      gridDetailData: res.items,
+      gridPartnersData: res.partners,
+    });
   };
 
   const columnDefs: ColDef[] = [
@@ -85,7 +99,7 @@ const CIGrid: React.FC<Props> = (props) => {
           <Box>
             <StyledActionButton
               color="primary"
-              onClick={() => showOrder(params.data.id)}
+              onClick={() => showDetail(params.data.invoiceNumber)}
             >
               Detail
             </StyledActionButton>
@@ -192,6 +206,7 @@ const CIGrid: React.FC<Props> = (props) => {
   ];
 
   const [state, setState] = useSetState<State>({
+    open: false,
     params: {
       page: 1,
       page_size: 50,
@@ -234,7 +249,7 @@ const CIGrid: React.FC<Props> = (props) => {
   });
 
   const handleSearch = (value: any) => {
-    const searchParams = {
+    const searchParams: API.InvoiceListParams = {
       ...state.params,
       ...value,
     };
@@ -252,7 +267,13 @@ const CIGrid: React.FC<Props> = (props) => {
 
   return (
     <>
-      <FormContainer onSuccess={handleSearch}>
+      <FormContainer
+        onSuccess={handleSearch}
+        values={{
+          ship_to: [],
+          freeFaxNumber: [],
+        }}
+      >
         <Box
           display={"flex"}
           flexWrap={"wrap"}
@@ -355,6 +376,7 @@ const CIGrid: React.FC<Props> = (props) => {
               sx={{ width: "48%" }}
               name="keyword"
               label="Search for"
+              type="search"
               placeholder="Input CI NO./Order/Order ID"
               InputProps={{
                 autoComplete: "off",
@@ -406,7 +428,7 @@ const CIGrid: React.FC<Props> = (props) => {
               [];
             event.columnApi?.autoSizeColumns(allColumnIds, false);
           }}
-        ></AgGridReact>
+        />
       </Box>
       <Box
         display={"flex"}
@@ -420,7 +442,7 @@ const CIGrid: React.FC<Props> = (props) => {
             sx={{ height: "30px", fontSize: "1.4rem" }}
             value={state.params?.page_size}
             onChange={(e) => {
-              handleSearch({ page_size: e.target.value as number });
+              handleSearch({ page: 1, page_size: e.target.value as number });
             }}
           >
             {[50, 100, 200, 300, 500].map((item) => {
@@ -433,21 +455,32 @@ const CIGrid: React.FC<Props> = (props) => {
           </Select>
           <Typography fontSize={"1.4rem"}>Per Page</Typography>
         </Box>
-        <Pagination
-          sx={{
-            "& .MuiPagination-ul": {
-              justifyContent: "flex-end",
-            },
-          }}
-          count={rowData?.last_page}
-          variant="outlined"
-          shape="rounded"
-          onChange={(e, value) => {
-            handleSearch({ page: value });
-          }}
-          defaultPage={state.params?.page}
-        />
+        {rowData?.last_page && (
+          <Pagination
+            sx={{
+              "& .MuiPagination-ul": {
+                justifyContent: "flex-end",
+              },
+            }}
+            count={rowData?.last_page}
+            variant="outlined"
+            shape="rounded"
+            onChange={(e, value) => {
+              handleSearch({ page: value });
+            }}
+            defaultPage={Number(state.params?.page) ?? 1}
+          />
+        )}
       </Box>
+
+      <CIDetail
+        open={state.open}
+        onClose={() => setState({ open: false })}
+        detailOptions={state.gridDetailOptions}
+        partnersOptions={state.gridPartnersOptions}
+        detailData={state.gridDetailData}
+        partnersData={state.gridPartnersData}
+      />
     </>
   );
 };

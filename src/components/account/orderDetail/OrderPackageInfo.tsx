@@ -30,13 +30,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
+    <div role="tabpanel" hidden={value !== index} {...other}>
       {value === index && <Box width={615}>{children}</Box>}
     </div>
   );
@@ -59,11 +53,7 @@ const OrderPackageInfo: React.FC<Props> = (props) => {
     <Dialog open={open} maxWidth="md">
       <BootstrapDialogTitle onClose={onClose}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label="basic tabs example"
-          >
+          <Tabs value={value} onChange={handleChange}>
             <Tab label="Order Information" />
             <Tab label="Pallet Information" />
           </Tabs>

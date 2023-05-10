@@ -17,7 +17,7 @@ import request from "@/utils/request";
 // };
 
 /**
- * 获取订单列表
+ * 获取发票列表
  * @param data
  */
 export const getInvoiceList = async (data?: API.InvoiceListParams) => {
@@ -25,6 +25,21 @@ export const getInvoiceList = async (data?: API.InvoiceListParams) => {
     method: "POST",
     url: "/api/account/getInvoicesPaginate",
     data,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 获取发票详情
+ * @param data
+ */
+export const getInvoiceInfo = async (invoiceNumber: string) => {
+  return request({
+    method: "POST",
+    url: "/api/account/getInvoice",
+    data: { invoiceNumber },
+    isShowError: true,
   }).then((res) => {
     return res.data;
   });
