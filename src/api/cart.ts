@@ -17,7 +17,7 @@ export const addToCart = async (
       count,
       type,
     },
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });

@@ -11,7 +11,7 @@ export const checkSku = async (sku: string) => {
     data: {
       sku,
     },
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });

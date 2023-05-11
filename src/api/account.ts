@@ -39,7 +39,36 @@ export const getInvoiceInfo = async (invoiceNumber: string) => {
     method: "POST",
     url: "/api/account/getInvoice",
     data: { invoiceNumber },
-    isShowError: true,
+    showError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 获取心愿单详情
+ * @param data
+ */
+export const getWishList = async (data?: API.WishListParams) => {
+  return request({
+    method: "POST",
+    url: "/api/account/getWishList",
+    data,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 删除心愿单产品
+ * @param data
+ */
+export const removeWish = async (product_id: string) => {
+  return request({
+    method: "POST",
+    url: "/api/account/deleteWish",
+    data: { product_id },
+    showError: true,
   }).then((res) => {
     return res.data;
   });

@@ -9,7 +9,7 @@ export const login = async (data: API.Login) => {
     method: "POST",
     url: `/api/account/login`,
     data,
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });

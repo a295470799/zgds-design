@@ -230,4 +230,10 @@ declare namespace API {
     countrys?: any[];
     zones?: any[];
   };
+
+  type WishListParams = {
+    page?: number;
+    cids?: number[];
+    bnames?: string[];
+  };
 }

@@ -23,7 +23,7 @@ export const createOrder = async (data: API.CreateOrderParams) => {
     method: "POST",
     url: "/api/account/createOrder",
     data,
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });

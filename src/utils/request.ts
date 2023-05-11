@@ -7,7 +7,7 @@ declare module "axios" {
     /**
      * @description 是否默认弹出错误信息
      */
-    isShowError?: boolean;
+    showError?: boolean;
   }
 }
 
@@ -39,7 +39,7 @@ request.interceptors.response.use(
       removeToken();
       window.location.href = "/login";
     } else {
-      if (response.config.isShowError) {
+      if (response.config.showError) {
         enqueueSnackbar(
           response?.data?.message || "System busy, please retry",
           {

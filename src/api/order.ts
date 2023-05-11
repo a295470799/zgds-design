@@ -23,7 +23,7 @@ export const confirmOrders = async (order_ids: string[]) => {
     method: "POST",
     url: "/api/account/confirmOrders",
     data: { order_ids },
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });
@@ -38,7 +38,7 @@ export const cancelOrders = async (order_ids: (string | number)[]) => {
     method: "POST",
     url: "/api/account/cancelOrders",
     data: { order_ids },
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });
@@ -190,7 +190,7 @@ export const updateOrder = async (data: API.UpdateOrderParams) => {
     method: "POST",
     url: "/api/account/updateOrder",
     data,
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     if (res?.data) return mapUpdateOrderInfo(res?.data);
     return {} as API.OrderInfo;
@@ -209,7 +209,7 @@ export const getOrUpdateOrder = async (
     method: "POST",
     url: init ? "/api/account/getOrder" : "/api/account/updateOrder",
     data,
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     if (res?.data) return mapOrderInfo(res?.data);
     return {} as API.OrderInfo;
@@ -239,7 +239,7 @@ export const createQuickOrder = async (data: API.CreateOrderParams) => {
     method: "POST",
     url: "/api/account/createOrders2",
     data,
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });
@@ -254,7 +254,7 @@ export const uploadQuickOrderSku = async (data: FormData) => {
     method: "POST",
     url: "/api/account/uploadSku",
     data,
-    isShowError: true,
+    showError: true,
   }).then((res) => {
     return res.data;
   });
