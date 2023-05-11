@@ -236,4 +236,15 @@ declare namespace API {
     cids?: number[];
     bnames?: string[];
   };
+
+  type ProductListParams = {
+    category_id?: string;
+    wished?: string;
+    tags?: string;
+    labels?: string;
+    brand?: string;
+    order?: string;
+    page?: number;
+    page_size?: number;
+  };
 }

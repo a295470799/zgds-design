@@ -3,7 +3,7 @@ import { Box, Skeleton } from "@mui/material";
 export default function () {
   return (
     <Box sx={{ display: "flex", flexWrap: "wrap", gap: "20px 10px" }}>
-      {[1, 2, 3, 4, 5, 6].map((item) => {
+      {[1, 2, 3].map((item) => {
         return (
           <Box key={item}>
             <Skeleton

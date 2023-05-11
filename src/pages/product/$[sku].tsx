@@ -9,6 +9,7 @@ import Breadcrumb from "#lib/Breadcrumb";
 import { formatPrice } from "@/utils/format";
 import ImageComponent from "#lib/Image";
 import WishIcon from "@assets/icons/product/wish.svg";
+import WishedIcon from "@assets/icons/product/wished.svg";
 import PdfIcon from "@assets/icons/product/pdf.svg";
 import DownloadIcon from "@assets/icons/product/pdf-download.svg";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,6 +23,7 @@ import { useRequest } from "ahooks";
 import { useParams } from "react-router";
 import { enqueueSnackbar } from "notistack";
 import { addToCart } from "@/api/cart";
+import { addWish, removeWish } from "@/api/account";
 
 const StyledInfo = styled("div")`
   display: flex;
@@ -85,7 +87,7 @@ type TabPanelProps = {
 
 export default function Product() {
   const { sku } = useParams();
-  const { data: info } = useRequest<any, [string]>(getProductInfo, {
+  const { data: info, refresh } = useRequest<any, [string]>(getProductInfo, {
     defaultParams: [sku ?? ""],
   });
 
@@ -126,7 +128,21 @@ export default function Product() {
     await addToCart(info.id, qty);
     enqueueSnackbar(`You've added ${qty} item(s) to your cart.`, {
       variant: "success",
+      autoHideDuration: 2000,
     });
+  };
+
+  const handleWish = async () => {
+    if (info?.wished == 0) {
+      await addWish(info.id);
+      enqueueSnackbar("Added successfuly.", {
+        variant: "success",
+        autoHideDuration: 2000,
+      });
+    } else {
+      await removeWish(info.id);
+    }
+    refresh();
   };
 
   return (
@@ -350,8 +366,8 @@ export default function Product() {
             >
               ADD TO CART
             </Button>
-            <IconButton aria-label="add to wish">
-              <img src={WishIcon} />
+            <IconButton aria-label="add to wish" onClick={handleWish}>
+              <img src={info?.wished == 0 ? WishIcon : WishedIcon} />
             </IconButton>
           </Box>
         </StyledInfoRight>

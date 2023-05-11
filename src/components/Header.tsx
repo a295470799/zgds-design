@@ -285,7 +285,7 @@ export default function Header() {
           <IconButton href="/account" target="_blank">
             <img src={UserIcon} />
           </IconButton>
-          <IconButton href="/account/wish">
+          <IconButton href="/account/wishlist">
             <img src={HeartIcon} />
           </IconButton>
           <IconButton href="/cart">

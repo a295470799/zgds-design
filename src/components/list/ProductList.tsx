@@ -7,24 +7,27 @@ import {
   Select,
   Link,
   Pagination,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { CheckboxButtonGroup, FormContainer } from "react-hook-form-mui";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useHover, useReactive, useSetState, useUpdateEffect } from "ahooks";
 import Stepper from "#lib/Stepper";
 import Breadcrumb from "#lib/Breadcrumb";
 import ImageComponent from "#lib/Image";
 import WishedIcon from "@assets/icons/wished.svg";
 import WishIcon from "@assets/icons/wish.svg";
+import EmptyIcon from "@assets/icons/empty.svg";
 import Layout from "#lib/Layout";
 import { enqueueSnackbar } from "notistack";
 import { getProductList } from "@/api/product";
 import { useRequest } from "ahooks";
 import { addToCart } from "@/api/cart";
 import qs from "query-string";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import ProductListSkeleton from "../skeleton/ProductListSkeleton";
+import { addWish, removeWish } from "@/api/account";
 
 interface Props {
   id?: string;
@@ -113,9 +116,6 @@ const ProductItem = styled("li")`
   & .badge-wish {
     top: 0;
     right: 0;
-    background: url(${WishIcon}) no-repeat center;
-    width: 28px;
-    height: 28px;
     border: 0;
   }
   & .badge-back {
@@ -126,24 +126,30 @@ const ProductItem = styled("li")`
   }
 `;
 
-type UrlState = {
-  wished?: string;
-  tags?: string;
-  labels?: string;
-  brand?: string;
-  order?: string;
-  page?: number;
-  page_size?: number;
-};
+const StyledLink = styled("span")<{ bold?: number }>(({ theme, bold }) => ({
+  color: theme.palette.text.secondary,
+  fontSize: "1.4rem",
+  paddingLeft: "16px",
+  marginBottom: "8px",
+  fontWeight: bold == 1 ? 500 : 400,
+  cursor: "pointer",
+  ["&:hover"]: {
+    textDecoration: "underline",
+  },
+}));
 
 const ProductList: React.FC<Props> = ({ id }) => {
-  const params = useLocation();
-  const { data: products, refresh } = useRequest<any, [string?]>(
-    getProductList,
-    {
-      defaultParams: [id],
-    }
-  );
+  const location = useLocation();
+  const navigate = useNavigate();
+  const {
+    data: products,
+    refresh,
+    run,
+    loading,
+  } = useRequest<any, [API.ProductListParams]>(getProductList, {
+    defaultParams: [{ category_id: id }],
+    debounceWait: 300,
+  });
 
   const state = useReactive(new Array(30).fill(1));
 
@@ -186,15 +192,39 @@ const ProductList: React.FC<Props> = ({ id }) => {
     }
   };
 
-  const [urlState, setUrlState] = useSetState<UrlState>({
+  const handleWish = async (id: string, wished: number) => {
+    if (wished == 0) {
+      await addWish(id);
+      enqueueSnackbar("Added successfuly.", {
+        variant: "success",
+        autoHideDuration: 2000,
+      });
+    } else {
+      await removeWish(id);
+    }
+    refresh();
+  };
+
+  const [urlState, setUrlState] = useSetState<API.ProductListParams>({
+    category_id: id,
     page: 1,
     page_size: 30,
-    ...qs.parse(params.search),
+    ...qs.parse(location.search),
   });
 
   useUpdateEffect(() => {
-    window.location.href = `?${qs.stringify(urlState)}`;
+    navigate(`?${qs.stringify(urlState)}`);
   }, [urlState]);
+
+  useEffect(() => {
+    const state = {
+      category_id: id,
+      page: 1,
+      page_size: 30,
+      ...qs.parse(location.search),
+    };
+    run(state);
+  }, [location]);
 
   return (
     <Layout>
@@ -224,24 +254,26 @@ const ProductList: React.FC<Props> = ({ id }) => {
               >
                 Home Furniture
               </Typography>
-              <Link
-                color="text.secondary"
-                href="#"
-                pl={2}
-                mb={1}
-                fontSize={"1.4rem"}
+              <StyledLink
+                onClick={() => {
+                  setUrlState({
+                    category_id: "1",
+                  });
+                }}
+                bold={urlState.category_id == "1" ? 1 : 0}
               >
                 Living Room (71)
-              </Link>
-              <Link
-                color="text.secondary"
-                href="#"
-                pl={2}
-                mb={1}
-                fontSize={"1.4rem"}
+              </StyledLink>
+              <StyledLink
+                onClick={() => {
+                  setUrlState({
+                    category_id: "2",
+                  });
+                }}
+                bold={urlState.category_id == "2" ? 1 : 0}
               >
                 Home Office (91)
-              </Link>
+              </StyledLink>
             </SidebarItem>
             <SidebarItem>
               <Typography
@@ -252,51 +284,36 @@ const ProductList: React.FC<Props> = ({ id }) => {
               >
                 Brand
               </Typography>
-              <Link
-                color="text.secondary"
-                href="#"
-                pl={2}
-                mb={1}
-                fontSize={"1.4rem"}
+              <StyledLink
                 onClick={() => {
                   setUrlState({
                     brand: "SONGMICS",
                   });
                 }}
-                fontWeight={urlState.brand == "SONGMICS" ? 500 : 400}
+                bold={urlState.brand == "SONGMICS" ? 1 : 0}
               >
                 SONGMICS (143)
-              </Link>
-              <Link
-                color="text.secondary"
-                href="#"
-                pl={2}
-                mb={1}
-                fontSize={"1.4rem"}
+              </StyledLink>
+              <StyledLink
                 onClick={() => {
                   setUrlState({
                     brand: "VASAGLE",
                   });
                 }}
-                fontWeight={urlState.brand == "VASAGLE" ? 500 : 400}
+                bold={urlState.brand == "VASAGLE" ? 1 : 0}
               >
                 VASAGLE (269)
-              </Link>
-              <Link
-                color="text.secondary"
-                href="#"
-                pl={2}
-                mb={1}
-                fontSize={"1.4rem"}
+              </StyledLink>
+              <StyledLink
                 onClick={() => {
                   setUrlState({
                     brand: "FEANDREA",
                   });
                 }}
-                fontWeight={urlState.brand == "FEANDREA" ? 500 : 400}
+                bold={urlState.brand == "FEANDREA" ? 1 : 0}
               >
                 FEANDREA (0)
-              </Link>
+              </StyledLink>
             </SidebarItem>
             <SidebarItem>
               <CheckboxButtonGroup
@@ -389,9 +406,9 @@ const ProductList: React.FC<Props> = ({ id }) => {
                 return (
                   <Link
                     key={item}
+                    sx={{ cursor: "pointer" }}
                     underline={item == urlState.page_size ? "always" : "hover"}
                     color="text.secondary"
-                    href="#"
                     fontSize={"1.4rem"}
                     onClick={() => {
                       setUrlState({
@@ -405,7 +422,7 @@ const ProductList: React.FC<Props> = ({ id }) => {
               })}
             </Box>
           </Box>
-          {products?.data ? (
+          {!loading ? (
             products?.data?.length > 0 ? (
               <>
                 <StyledProducts>
@@ -428,9 +445,17 @@ const ProductList: React.FC<Props> = ({ id }) => {
                               loadingType="loading"
                             />
                           </Link>
-                          <span className="badge badge-sale">Sale</span>
-                          <span className="badge badge-wish"></span>
-                          <span className="badge badge-back">Backorder</span>
+                          <div className="badge badge-sale">Sale</div>
+                          <div className="badge badge-wish">
+                            <IconButton
+                              onClick={() => handleWish(item.id, item.wished)}
+                            >
+                              <img
+                                src={item.wished == 0 ? WishIcon : WishedIcon}
+                              />
+                            </IconButton>
+                          </div>
+                          <div className="badge badge-back">Backorder</div>
                         </Box>
                         <Box>
                           <Link
@@ -504,7 +529,18 @@ const ProductList: React.FC<Props> = ({ id }) => {
                 )}
               </>
             ) : (
-              <>Empty</>
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                alignItems={"center"}
+                justifyContent={"center"}
+                height={300}
+              >
+                <Box>
+                  <img src={EmptyIcon} />
+                </Box>
+                <Typography>No data</Typography>
+              </Box>
             )
           ) : (
             <ProductListSkeleton />

@@ -4,11 +4,11 @@ import request from "@/utils/request";
  * 获取产品列表
  * @returns
  */
-export const getProductList = (category_id?: string) => {
+export const getProductList = (data: API.ProductListParams) => {
   return request({
     method: "POST",
     url: "/api/product/getProductsPaginate",
-    data: { category_id },
+    data,
   }).then((res) => {
     return res.data;
   });
