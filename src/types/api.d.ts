@@ -246,5 +246,6 @@ declare namespace API {
     order?: string;
     page?: number;
     page_size?: number;
+    k?: string;
   };
 }

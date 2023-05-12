@@ -8,6 +8,9 @@ import UserIcon from "@assets/icons/user.svg";
 import HeartIcon from "@assets/icons/heart.svg";
 import CartIcon from "@assets/icons/cart.svg";
 import LogoImg from "@assets/images/logo.png";
+import { useState } from "react";
+import { useLocation } from "react-router";
+import qs from "query-string";
 
 const StyledHeader = styled("div")`
   display: flex;
@@ -262,6 +265,14 @@ export default function Header() {
     },
   ];
 
+  const location = useLocation();
+  const { k } = qs.parse(location.search);
+  const [searchKey, setSearchKey] = useState<string>((k as string) ?? "");
+
+  const handleSearch = () => {
+    window.location.href = "/?k=" + searchKey;
+  };
+
   return (
     <Container>
       <StyledHeader>
@@ -276,8 +287,20 @@ export default function Header() {
             sx={{ ml: 1, flex: 1 }}
             placeholder="Please enter a keyword"
             inputProps={{ "aria-label": "Please enter a keyword" }}
+            value={searchKey}
+            onChange={(e) => setSearchKey(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key == "Enter") {
+                handleSearch();
+              }
+            }}
           />
-          <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
+          <IconButton
+            type="button"
+            sx={{ p: "10px" }}
+            aria-label="search"
+            onClick={handleSearch}
+          >
             <SearchIcon />
           </IconButton>
         </StyledSearch>
