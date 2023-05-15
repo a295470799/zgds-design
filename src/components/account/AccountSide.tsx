@@ -14,9 +14,9 @@ import WishlistActiveIcon from "@assets/icons/account/wishlist-active.svg";
 import SignOutIcon from "@assets/icons/account/sign_out.svg";
 import SignOutActiveIcon from "@assets/icons/account/sign_out-active.svg";
 
-type Props = {
+interface Props {
   code?: "dashboard" | "information" | "orders" | "ci" | "wishlist" | "signout";
-};
+}
 
 const StyledBox = styled(Box)`
   li {

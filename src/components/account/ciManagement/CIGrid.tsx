@@ -44,10 +44,10 @@ type State = {
   gridPartnersData?: any[];
 };
 
-type Props = {
+interface Props {
   rowData: any;
   onChange: (params?: API.InvoiceListParams) => void;
-};
+}
 
 const CIGrid: React.FC<Props> = (props) => {
   const { rowData, onChange } = props;
@@ -457,11 +457,6 @@ const CIGrid: React.FC<Props> = (props) => {
         </Box>
         {rowData?.last_page && (
           <Pagination
-            sx={{
-              "& .MuiPagination-ul": {
-                justifyContent: "flex-end",
-              },
-            }}
             count={rowData?.last_page}
             variant="outlined"
             shape="rounded"

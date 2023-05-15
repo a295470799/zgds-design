@@ -1,10 +1,10 @@
 import { Box, Paper, TextField, Typography } from "@mui/material";
 
-type Props = {
+interface Props {
   label?: string;
   addressInfo?: API.EyaUserInfo;
   children?: React.ReactNode;
-};
+}
 
 const CheckoutCard: React.FC<Props> = (props) => {
   const { label = "BILLING INFORMATION", addressInfo, children } = props;

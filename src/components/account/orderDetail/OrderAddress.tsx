@@ -10,7 +10,7 @@ import {
   UseFormSetValue,
 } from "react-hook-form-mui";
 
-type Props = {
+interface Props {
   action?: string; // "show" | "edit"
   status?: number;
   orderType?: string; // "Dropship" | "Batch order"
@@ -22,7 +22,7 @@ type Props = {
   callBack?: (data: API.EyaUserInfo) => void;
   setValue?: UseFormSetValue<API.ShippingParams>;
   onCountryChange?: (countryCode: string) => void;
-};
+}
 
 const OrderAddress: React.FC<Props> = (props) => {
   const {

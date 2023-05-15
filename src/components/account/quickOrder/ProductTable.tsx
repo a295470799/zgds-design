@@ -28,9 +28,9 @@ import { TextFieldElement } from "react-hook-form-mui";
 import { uploadQuickOrderSku } from "@/api/order";
 import { useConfirm } from "#lib/ConfirmProvider";
 
-type Props = {
+interface Props {
   onChange?: (data: ProductListProps) => void;
-};
+}
 
 export type ProductListProps = {
   sku: string;

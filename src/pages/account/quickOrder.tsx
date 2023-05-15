@@ -144,14 +144,12 @@ export default function QuickOrder() {
     if (state.orderType == "Batch order" && !state.shipping?.partnerCode) {
       enqueueSnackbar("Please select Shipping Information", {
         variant: "error",
-        autoHideDuration: 2000,
       });
     }
 
     if (!state.billing?.partnerCode) {
       enqueueSnackbar("Please select Billing Information", {
         variant: "error",
-        autoHideDuration: 2000,
       });
       return;
     }
@@ -160,14 +158,12 @@ export default function QuickOrder() {
       if (!state.skuItems?.every((item) => item.status == "Available")) {
         enqueueSnackbar("Product information is incorrect", {
           variant: "error",
-          autoHideDuration: 2000,
         });
         return;
       }
     } else {
       enqueueSnackbar("No product information", {
         variant: "error",
-        autoHideDuration: 2000,
       });
       return;
     }

@@ -1,9 +1,9 @@
 import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
 
-type Props = {
+interface Props {
   open: boolean;
   onSelect: (type: "Dropship" | "Batch order") => void;
-};
+}
 const OrderTypeSelect: React.FC<Props> = (props) => {
   return (
     <Dialog

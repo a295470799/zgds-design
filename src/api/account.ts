@@ -88,3 +88,18 @@ export const addWish = async (product_id: string) => {
     return res.data;
   });
 };
+
+/**
+ * Contact Us Feedback
+ * @param product_id
+ */
+export const createFeedback = async (data: API.ContactUsParams) => {
+  return request({
+    method: "POST",
+    url: "/api/account/feedback",
+    data,
+    showError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};

@@ -21,7 +21,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             <SnackbarProvider
               anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               TransitionComponent={Grow}
-              autoHideDuration={4000}
+              autoHideDuration={3000}
+              variant="success"
             >
               <div id="back-to-top-anchor"></div>
               <CssBaseline />

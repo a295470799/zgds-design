@@ -53,14 +53,14 @@ const xsButton = {
   minWidth: "fit-content",
 };
 
-type Props = {
+interface Props {
   type: "show" | "edit";
   status?: number;
   productList: any[];
   onDelete?: (id: string) => void;
   onQtyChange?: (sku: string, qty: number) => void;
   onAddSku?: (open: boolean) => void;
-};
+}
 const ProductTable: React.FC<Props> = (props) => {
   const {
     type,

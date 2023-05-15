@@ -126,19 +126,13 @@ export default function Product() {
 
   const handleAddToCart = async () => {
     await addToCart(info.id, qty);
-    enqueueSnackbar(`You've added ${qty} item(s) to your cart.`, {
-      variant: "success",
-      autoHideDuration: 2000,
-    });
+    enqueueSnackbar(`You've added ${qty} item(s) to your cart.`);
   };
 
   const handleWish = async () => {
     if (info?.wished == 0) {
       await addWish(info.id);
-      enqueueSnackbar("Added successfuly.", {
-        variant: "success",
-        autoHideDuration: 2000,
-      });
+      enqueueSnackbar("Added successfuly.");
     } else {
       await removeWish(info.id);
     }

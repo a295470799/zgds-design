@@ -14,7 +14,7 @@ const StyledLayout = styled("div")`
   }
 `;
 
-type Props = {
+interface Props {
   children: React.ReactNode;
   title?: string;
   description?: string;
@@ -23,7 +23,7 @@ type Props = {
   bodySx?: SxProps;
   metaChildren?: React.ReactNode;
   spaceBetween?: boolean;
-};
+}
 
 const Layout: React.FC<Props> = (props) => {
   const {

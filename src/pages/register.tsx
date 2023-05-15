@@ -118,7 +118,7 @@ export default function Register() {
 
         <TextFieldElement required label="Last Name" name="lastname" />
 
-        <TextFieldElement required label="Email" name="email" />
+        <TextFieldElement required label="Email" name="email" type="email" />
 
         <TextFieldElement required label="Phone" name="phone" />
 

@@ -37,6 +37,15 @@ const theme = createTheme({
     htmlFontSize: 10,
   },
   components: {
+    MuiPagination: {
+      defaultProps: {
+        sx: {
+          "& .MuiPagination-ul": {
+            justifyContent: "flex-end",
+          },
+        },
+      },
+    },
     MuiTypography: {
       defaultProps: {
         fontSize: "inherit",
@@ -62,8 +71,10 @@ const theme = createTheme({
     },
     MuiButtonBase: {
       defaultProps: {
-        style: {
-          textTransform: "none",
+        sx: {
+          ["&"]: {
+            textTransform: "none",
+          },
         },
       },
     },

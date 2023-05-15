@@ -14,10 +14,10 @@ import { createdropOrders } from "@/api/order";
 import { useMessage } from "#lib/MessageProvider";
 import WarningIcon from "@assets/icons/account/Warning-f.svg";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
-};
+}
 
 const VolumeOrder: React.FC<Props> = (props) => {
   const { open = false, onClose } = props;

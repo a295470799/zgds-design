@@ -1,10 +1,10 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
 
-type Props = {
+interface Props {
   type: "shipping" | "billing";
   children?: React.ReactNode;
   addressInfo?: API.EyaUserInfo;
-};
+}
 const AddressCard: React.FC<Props> = (props) => {
   const { type, children, addressInfo } = props;
   return (

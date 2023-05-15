@@ -1,9 +1,9 @@
 import { Grid, Typography } from "@mui/material";
 import { SelectElement, TextFieldElement } from "react-hook-form-mui";
 
-type Props = {
+interface Props {
   countrys: any[];
-};
+}
 const ShippingFormCard: React.FC<Props> = (props) => {
   const { countrys } = props;
 

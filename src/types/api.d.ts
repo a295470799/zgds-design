@@ -248,4 +248,14 @@ declare namespace API {
     page_size?: number;
     k?: string;
   };
+
+  type ContactUsParams = {
+    firstname: string;
+    lastname: string;
+    email: string;
+    subject: string;
+    phone?: string;
+    order_number?: string;
+    content?: string;
+  };
 }

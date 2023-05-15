@@ -50,10 +50,7 @@ export default function () {
 
   const handleAddtocart = async (id: number) => {
     await addToCart(id, 1, "inc");
-    enqueueSnackbar("You've added 1 item to your cart.", {
-      autoHideDuration: 2000,
-      variant: "success",
-    });
+    enqueueSnackbar("You've added 1 item to your cart.");
   };
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -156,12 +153,7 @@ export default function () {
         </Box>
         {data?.products?.last_page && data?.products?.last_page > 1 && (
           <Pagination
-            sx={{
-              mt: 3,
-              "& .MuiPagination-ul": {
-                justifyContent: "flex-end",
-              },
-            }}
+            sx={{ mt: 3 }}
             count={data?.products?.last_page}
             variant="outlined"
             shape="rounded"

@@ -23,7 +23,7 @@ const LiRight = styled("span")`
   font-size: 1.4rem;
 `;
 
-type Props = {
+interface Props {
   summary: {
     count?: number;
     totalPrice?: string;
@@ -33,7 +33,7 @@ type Props = {
   type?: "cart" | "checkout";
   onPlaceOrder?: () => void;
   sx?: SxProps<Theme>;
-};
+}
 
 export default function CartSummary(props: Props) {
   const { summary, type = "cart", onPlaceOrder, sx } = props;

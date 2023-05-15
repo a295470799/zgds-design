@@ -41,12 +41,12 @@ type State = {
   gridOptions: GridOptions;
 };
 
-type Props = {
+interface Props {
   rowData: any;
   type?: string;
   onChange: (params?: API.OrderListParams) => void;
   defaultParams?: API.OrderListParams;
-};
+}
 
 const OrderGrid: React.FC<Props> = (props) => {
   const { type, rowData, onChange, defaultParams } = props;
@@ -181,7 +181,7 @@ const OrderGrid: React.FC<Props> = (props) => {
       ?.map((item) => item.id);
     if (Array.isArray(ids) && ids.length > 0) {
       await confirmOrders(ids);
-      enqueueSnackbar("Success!", { variant: "success" });
+      enqueueSnackbar("Success!");
       handleSearch(state.params);
     }
   };
@@ -192,7 +192,7 @@ const OrderGrid: React.FC<Props> = (props) => {
       ?.map((item) => item.id);
     if (Array.isArray(ids) && ids.length > 0) {
       await cancelOrders(ids);
-      enqueueSnackbar("Success!", { variant: "success" });
+      enqueueSnackbar("Success!");
       handleSearch(state.params);
     }
   };
@@ -406,11 +406,6 @@ const OrderGrid: React.FC<Props> = (props) => {
         </Box>
         {rowData?.last_page && (
           <Pagination
-            sx={{
-              "& .MuiPagination-ul": {
-                justifyContent: "flex-end",
-              },
-            }}
             count={rowData?.last_page}
             variant="outlined"
             shape="rounded"

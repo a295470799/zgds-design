@@ -39,12 +39,12 @@ const StyledItemContent = styled(Typography)<{ current: number }>`
       : "rgba(136,136,136,.5)"};
 `;
 
-type Props = {
+interface Props {
   items: {
     title: string;
     content: string;
   }[];
-};
+}
 
 const OrderTimeline: React.FC<Props> = (props) => {
   const { items = [] } = props;

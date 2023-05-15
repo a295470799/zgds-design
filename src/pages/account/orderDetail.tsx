@@ -1,8 +1,10 @@
 import Layout from "#lib/Layout";
 import OrderAddress from "@/components/account/orderDetail/OrderAddress";
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -75,16 +77,19 @@ export default function OrderDetails() {
     defaultParams: [id as string, type as string],
   });
 
-  const { data: orderInfo = initOrderInfo, runAsync: runUpdateOrder } =
-    useRequest<API.OrderInfo, [API.UpdateOrderParams]>(
-      async (data) => {
-        const res = await updateOrder(data);
-        return Object.assign(initOrderInfo as API.OrderInfo, res);
-      },
-      {
-        manual: true,
-      }
-    );
+  const {
+    data: orderInfo = initOrderInfo,
+    runAsync: runUpdateOrder,
+    loading,
+  } = useRequest<API.OrderInfo, [API.UpdateOrderParams]>(
+    async (data) => {
+      const res = await updateOrder(data);
+      return Object.assign(initOrderInfo as API.OrderInfo, res);
+    },
+    {
+      manual: true,
+    }
+  );
 
   const { getValues, control, handleSubmit, setValue } = useForm({
     values: {
@@ -123,7 +128,11 @@ export default function OrderDetails() {
   }, [orderInfo]);
 
   const goBack = () => {
-    navigate(-1);
+    if (location.state) {
+      navigate(-1);
+    } else {
+      navigate("/account/orders");
+    }
   };
 
   const onSubmit = async (data: API.ShippingParams) => {
@@ -160,14 +169,12 @@ export default function OrderDetails() {
     if (orderParams?.skuItems?.findIndex((item) => item.sku == sku) != -1) {
       enqueueSnackbar("This order includes this SKU.", {
         variant: "error",
-        autoHideDuration: 2000,
       });
     } else {
       const res = await checkSku(sku);
       if (res == 0) {
         enqueueSnackbar("SKU is unavailable", {
           variant: "error",
-          autoHideDuration: 2000,
         });
       } else {
         orderParams?.skuItems?.push({ sku, count });
@@ -228,7 +235,6 @@ export default function OrderDetails() {
     } else {
       enqueueSnackbar("Invalid Order ID", {
         variant: "error",
-        autoHideDuration: 2000,
       });
     }
   };
@@ -491,6 +497,13 @@ export default function OrderDetails() {
         orderInformation={orderInfo?.orderInformation}
         palletInformation={orderInfo?.palletInformation}
       />
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Layout>
   );
 }

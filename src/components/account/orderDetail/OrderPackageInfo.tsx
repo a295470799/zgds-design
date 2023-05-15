@@ -13,12 +13,12 @@ import {
 import { useState } from "react";
 import BootstrapDialogTitle from "#lib/BootstrapDialogTitle";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
   orderInformation?: any[];
   palletInformation?: any[];
-};
+}
 
 interface TabPanelProps {
   children?: React.ReactNode;

@@ -3,11 +3,11 @@ import React from "react";
 import AccountSide from "./AccountSide";
 import { Box } from "@mui/material";
 
-type Props = {
+interface Props {
   title?: string;
   code?: "dashboard" | "information" | "orders" | "ci" | "wishlist" | "signout";
   children: React.ReactNode;
-};
+}
 
 const AccountWrapper: React.FC<Props> = (props) => {
   return (

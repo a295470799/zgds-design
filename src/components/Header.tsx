@@ -270,7 +270,7 @@ export default function Header() {
   const [searchKey, setSearchKey] = useState<string>((k as string) ?? "");
 
   const handleSearch = () => {
-    window.location.href = "/?k=" + searchKey;
+    window.location.href = "/list?k=" + searchKey;
   };
 
   return (

@@ -4,14 +4,14 @@ import { Controller } from "react-hook-form-mui";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
-type Props = {
+interface Props {
   label: string;
   options: {
     id: string;
     label: string;
   }[];
   name: string;
-};
+}
 
 const MultipleSelectElement: React.FC<Props> = (props) => {
   const { label, options = [], name } = props;

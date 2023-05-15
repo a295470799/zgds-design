@@ -15,14 +15,14 @@ import BootstrapDialogTitle from "#lib/BootstrapDialogTitle";
 import { AgGridReact } from "ag-grid-react";
 import { GridOptions } from "ag-grid-community";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
   detailOptions: GridOptions;
   partnersOptions: GridOptions;
   detailData?: any[];
   partnersData?: any[];
-};
+}
 
 interface TabPanelProps {
   children?: React.ReactNode;
