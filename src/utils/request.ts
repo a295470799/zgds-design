@@ -12,7 +12,7 @@ declare module "axios" {
 }
 
 const request = axios.create({
-  baseURL: "http://dev.a.zgds.eu",
+  baseURL: import.meta.env.API_URL,
   timeout: 3000,
 });
 
