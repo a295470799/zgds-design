@@ -5,7 +5,6 @@ import mockDevServerPlugin from "vite-plugin-mock-dev-server";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/zgds-design/",
   plugins: [react(), mockDevServerPlugin()],
   envDir: "./env",
   resolve: {

@@ -1,0 +1,1 @@
+import{aK as c,r,aM as _,aS as n}from"./index-7fc42087.js";var f=function(u){var e=c(r.useState(u),2),o=e[0],i=e[1],S=r.useCallback(function(t){i(function(a){var s=_(t)?t(a):t;return s?n(n({},a),s):a})},[]);return[o,S]};const l=f;export{l as u};
