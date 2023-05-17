@@ -18,6 +18,7 @@ import { useRequest, useSetState } from "ahooks";
 import { enqueueSnackbar } from "notistack";
 import { useEffect } from "react";
 import {
+  FieldErrors,
   FormContainer,
   RadioButtonGroup,
   SelectElement,
@@ -182,12 +183,25 @@ export default function Checkout() {
     });
   };
 
+  const handleError = (errors: FieldErrors<API.CreateOrderParams>) => {
+    if (errors?.fulfillmentChannelCode) {
+      enqueueSnackbar("Please select Shipment method", {
+        variant: "error",
+      });
+    }
+    if (errors?.tradeClauseCode) {
+      enqueueSnackbar("Please select Trade term", {
+        variant: "error",
+      });
+    }
+  };
+
   return checkoutData?.total_price > 0 ? (
     <Layout title="Checkout" bodySx={{ marginBlockStart: 0 }}>
       <OrderTypeSelect open={state.dialogOpen} onSelect={handleDialogClick} />
 
       {state.checkOutType && (
-        <FormContainer onSuccess={placeOrder}>
+        <FormContainer onSuccess={placeOrder} onError={handleError}>
           <Box
             sx={(theme) => {
               return {
@@ -211,11 +225,7 @@ export default function Checkout() {
                 {state.checkOutType}
               </Typography>
 
-              <TextFieldElement
-                required
-                label="PO NO."
-                name="customContractId"
-              />
+              <TextFieldElement label="PO NO." name="customContractId" />
               {state.checkOutType == "Dropship" && (
                 <Paper
                   sx={{
@@ -346,7 +356,7 @@ export default function Checkout() {
                       { id: "代发", label: "Ship by supplier" },
                       { id: "自提", label: "Self-pickup" },
                     ]}
-                  ></RadioButtonGroup>
+                  />
                 </Paper>
               )}
             </Box>

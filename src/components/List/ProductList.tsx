@@ -1,12 +1,12 @@
 import Typography from "@mui/material/Typography";
 import { Box, Button, Link, IconButton, Pagination } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useReactive } from "ahooks";
 import Stepper from "#lib/Stepper";
 import ImageComponent from "#lib/Image";
 import WishedIcon from "@assets/icons/wished.svg";
 import WishIcon from "@assets/icons/wish.svg";
 import { useEffect, useState } from "react";
+import { formatDate } from "@/utils/format";
 
 const StyledProducts = styled("ul")`
   display: flex;
@@ -92,13 +92,17 @@ const ProductList: React.FC<Props> = (props) => {
                     loadingType="loading"
                   />
                 </Link>
-                <div className="badge badge-sale">Sale</div>
+                {item?.label && (
+                  <div className="badge badge-sale">{item?.label}</div>
+                )}
                 <div className="badge badge-wish">
                   <IconButton onClick={() => onAddWish(item.id, item.wished)}>
                     <img src={item.wished == 0 ? WishIcon : WishedIcon} />
                   </IconButton>
                 </div>
-                <div className="badge badge-back">Backorder</div>
+                {item.stock == 0 && (
+                  <div className="badge badge-back">Backorder</div>
+                )}
               </Box>
               <Box>
                 <Link
@@ -128,6 +132,25 @@ const ProductList: React.FC<Props> = (props) => {
                 >
                   SKU: {item.sku}
                 </Typography>
+                {item?.restock?.restock_date && (
+                  <Typography
+                    color="text.fourth"
+                    fontSize={"1.2rem"}
+                    sx={{ marginBlockEnd: "10px" }}
+                  >
+                    Restock Date: {formatDate(item.restock.restock_date, true)}
+                  </Typography>
+                )}
+                {item?.restock?.restock_quantity && (
+                  <Typography
+                    color="text.fourth"
+                    fontSize={"1.2rem"}
+                    sx={{ marginBlockEnd: "10px" }}
+                  >
+                    Restock Quantity: {item.restock.restock_quantity}
+                  </Typography>
+                )}
+
                 <Box
                   sx={{
                     display: "flex",

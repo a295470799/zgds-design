@@ -75,6 +75,7 @@ export default function OrderDetails() {
     [id: string, type: string]
   >(getOrder, {
     defaultParams: [id as string, type as string],
+    debounceWait: 300,
   });
 
   const {
@@ -91,7 +92,7 @@ export default function OrderDetails() {
     }
   );
 
-  const { getValues, control, handleSubmit, setValue } = useForm({
+  const formContent = useForm({
     values: {
       shipping_name: orderInfo?.shippingInfo?.name ?? "",
       shipping_email: orderInfo?.shippingInfo?.email ?? "",
@@ -121,7 +122,7 @@ export default function OrderDetails() {
           }) ?? [],
         shipTo: orderInfo?.shipTo ?? "",
         billTo: orderInfo?.billTo ?? "",
-        ...getValues(),
+        ...formContent.getValues(),
         action: "get",
       });
     }
@@ -135,7 +136,7 @@ export default function OrderDetails() {
     }
   };
 
-  const onSubmit = async (data: API.ShippingParams) => {
+  const handleSubmit = async (data: API.ShippingParams) => {
     const params: API.UpdateOrderParams = {
       ...orderParams,
       ...data,
@@ -246,7 +247,7 @@ export default function OrderDetails() {
         return { background: theme.palette.background.paper };
       }}
     >
-      <FormContainer FormProps={{ onSubmit: handleSubmit(onSubmit) }}>
+      <FormContainer formContext={formContent} onSuccess={handleSubmit}>
         <Box display={"flex"} justifyContent={"space-between"}>
           <Box flex={"0 0 auto"} width={"260px"} padding={"0 25px 20px"}>
             <Button onClick={goBack}>
@@ -263,9 +264,8 @@ export default function OrderDetails() {
                 addressInfo={orderInfo?.shippingInfo}
                 countrys={orderInfo.countrys}
                 zones={orderInfo.zones}
-                control={control}
                 callBack={(data) => handleAddressChange("shipping", data)}
-                setValue={setValue}
+                setValue={formContent.setValue}
                 onCountryChange={handleCountryChange}
               />
             )}

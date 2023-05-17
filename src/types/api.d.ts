@@ -258,4 +258,13 @@ declare namespace API {
     order_number?: string;
     content?: string;
   };
+
+  type InformationParams = {
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    old_password?: string;
+    new_password?: string;
+    confirm_password?: string;
+  };
 }

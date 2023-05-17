@@ -11,6 +11,9 @@ import LogoImg from "@assets/images/logo.png";
 import { useState } from "react";
 import { useLocation } from "react-router";
 import qs from "query-string";
+import { getCategorys } from "@/api/common";
+import { useRequest } from "ahooks";
+import { BRAND_CATEGORYS } from "@/constants/common";
 
 const StyledHeader = styled("div")`
   display: flex;
@@ -145,126 +148,6 @@ const NavDropdownItem = styled("li")`
 `;
 
 export default function Header() {
-  const categorys = [
-    {
-      id: 1,
-      name: "Home Furniture",
-      parent_id: 0,
-      categorys: [
-        {
-          id: 2,
-          name: "Living Room",
-          parent_id: 1,
-          categorys: [
-            { id: 3, name: "Bookcases", parent_id: 2 },
-            { id: 4, name: "End Tables", parent_id: 2 },
-            { id: 5, name: "Chairs", parent_id: 2 },
-            { id: 6, name: "TV & Media Furniture", parent_id: 2 },
-            { id: 7, name: "Coffee Tables", parent_id: 2 },
-            { id: 8, name: "Console & Sofa Tables", parent_id: 2 },
-            { id: 10, name: "Ladder Shelves", parent_id: 2 },
-          ],
-        },
-        {
-          id: 12,
-          name: "Home Office",
-          parent_id: 1,
-          categorys: [
-            { id: 13, name: "Cabinets,Racks & Shelves", parent_id: 12 },
-            { id: 14, name: "Chairs & Stools", parent_id: 12 },
-            { id: 15, name: "Desks & Workstations", parent_id: 12 },
-          ],
-        },
-        {
-          id: 16,
-          name: "Bathroom",
-          parent_id: 1,
-          categorys: [
-            { id: 17, name: "Bathroom Sets", parent_id: 16 },
-            { id: 18, name: "Shower Organiser", parent_id: 16 },
-            { id: 19, name: "Mirror Cabinets", parent_id: 16 },
-            { id: 20, name: "Over-the-Toilet Storage", parent_id: 16 },
-            { id: 21, name: "Bathroom Shelves", parent_id: 16 },
-          ],
-        },
-        {
-          id: 22,
-          name: "Bedroom",
-          parent_id: 1,
-          categorys: [
-            { id: 23, name: "Bedside Tables", parent_id: 22 },
-            { id: 24, name: "Dressing Tables", parent_id: 22 },
-            { id: 25, name: "Trunks and chests of drawers", parent_id: 22 },
-            { id: 26, name: "Beds,Frames & Bases", parent_id: 22 },
-          ],
-        },
-        {
-          id: 27,
-          name: "Laundry Room",
-          parent_id: 1,
-          categorys: [
-            { id: 28, name: "Laundry Baskets", parent_id: 27 },
-            { id: 29, name: "Pop-Up Laundry Hampers", parent_id: 27 },
-          ],
-        },
-        {
-          id: 30,
-          name: "Hallway/Entryway",
-          parent_id: 1,
-          categorys: [
-            { id: 31, name: "Coat Racks", parent_id: 30 },
-            { id: 32, name: "Storage Benches", parent_id: 30 },
-          ],
-        },
-        {
-          id: 33,
-          name: "Kid's Room",
-          parent_id: 1,
-          categorys: [
-            { id: 34, name: "Shelves", parent_id: 33 },
-            { id: 35, name: "Toy Chests & Boxes", parent_id: 33 },
-          ],
-        },
-        {
-          id: 36,
-          name: "Accent Furniture",
-          parent_id: 1,
-          categorys: [{ id: 37, name: "Storage Cabinets", parent_id: 36 }],
-        },
-        {
-          id: 38,
-          name: "Game & Recreation Room",
-          parent_id: 1,
-          categorys: [{ id: 39, name: "Bar & Serving Carts", parent_id: 38 }],
-        },
-        {
-          id: 40,
-          name: "Reception furniture",
-          parent_id: 1,
-          categorys: [{ id: 41, name: "Umbrella stands", parent_id: 40 }],
-        },
-        {
-          id: 44,
-          name: "Home Accessories",
-          parent_id: 1,
-          categorys: [
-            {
-              id: 45,
-              name: "Photo Albums,Frames & Accessories",
-              parent_id: 44,
-            },
-          ],
-        },
-        {
-          id: 46,
-          name: "Home Care & Cleaning",
-          parent_id: 1,
-          categorys: [{ id: 47, name: "Bin Liners", parent_id: 46 }],
-        },
-      ],
-    },
-  ];
-
   const location = useLocation();
   const { k } = qs.parse(location.search);
   const [searchKey, setSearchKey] = useState<string>((k as string) ?? "");
@@ -272,6 +155,10 @@ export default function Header() {
   const handleSearch = () => {
     window.location.href = "/list?k=" + searchKey;
   };
+
+  const { data: categorys = [] } = useRequest(getCategorys, {
+    debounceWait: 500,
+  });
 
   return (
     <Container>
@@ -324,15 +211,17 @@ export default function Header() {
             </Link>
             <NavDropdown>
               <NavDropdownItem className="brand">
-                <Link href="/" className="nav-level2">
-                  SONGMICS
-                </Link>
-                <Link href="/" className="nav-level2">
-                  VASAGLE
-                </Link>
-                <Link href="/" className="nav-level2">
-                  FEANDREA
-                </Link>
+                {BRAND_CATEGORYS.map((item) => {
+                  return (
+                    <Link
+                      key={item}
+                      href={`/list?brand=${item}`}
+                      className="nav-level2"
+                    >
+                      {item}
+                    </Link>
+                  );
+                })}
               </NavDropdownItem>
             </NavDropdown>
           </NavItem>

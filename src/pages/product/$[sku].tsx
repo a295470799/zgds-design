@@ -1,12 +1,21 @@
-import { getProductInfo } from "@/api/product";
-import { Box, Button, IconButton, Paper, Tab, Tabs } from "@mui/material";
+import { downloadManual, getProductInfo } from "@/api/product";
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  Paper,
+  Tab,
+  Tabs,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useState } from "react";
 import Stepper from "#lib/Stepper";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import Breadcrumb from "#lib/Breadcrumb";
-import { formatPrice } from "@/utils/format";
+import { formatDate, formatPrice } from "@/utils/format";
 import ImageComponent from "#lib/Image";
 import WishIcon from "@assets/icons/product/wish.svg";
 import WishedIcon from "@assets/icons/product/wished.svg";
@@ -139,6 +148,25 @@ export default function Product() {
     refresh();
   };
 
+  const { loading, runAsync: runDownload } = useRequest<any, [string]>(
+    downloadManual,
+    {
+      manual: true,
+    }
+  );
+
+  const handleDownloadManual = async () => {
+    const res = await runDownload(info.id);
+
+    // 创建一个虚拟的a标签，设置下载属性和下载链接，然后触发点击事件
+    const link = document.createElement("a");
+    link.target = "_blank";
+    link.href = res;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Layout>
       <Breadcrumb>
@@ -229,7 +257,7 @@ export default function Product() {
               fontWeight={500}
               component="span"
             >
-              {formatPrice(41.99)}
+              {formatPrice(info?.price)}
             </Typography>
             <Typography
               color="secondary"
@@ -240,6 +268,33 @@ export default function Product() {
               Tax and Shipping Not Included
             </Typography>
           </Box>
+          {info?.discount > 0 && info?.discount_status == 1 && (
+            <Box>
+              <Typography
+                fontSize={"1.4rem"}
+                color="text.secondary"
+                component={"span"}
+              >
+                Wholesale Price:
+              </Typography>
+              <Typography
+                fontSize={"1.2rem"}
+                component={"span"}
+                sx={(theme) => {
+                  return {
+                    backgroundColor: theme.palette.secondary.main,
+                    color: theme.palette.common.white,
+                    p: "0 9px",
+                    display: "inline-block",
+                    ml: "15px",
+                  };
+                }}
+              >
+                -{info?.discount * 100}%
+              </Typography>
+            </Box>
+          )}
+
           <StyledPriceInterval>
             {info?.prices.map((item: any, index: number) => {
               return (
@@ -261,7 +316,7 @@ export default function Product() {
                   <Typography
                     color="secondary"
                     fontSize={"1.4rem"}
-                    fontWeight={500}
+                    fontWeight={700}
                   >
                     {formatPrice(item.price)}
                   </Typography>
@@ -279,7 +334,7 @@ export default function Product() {
                 fontSize={"1.4rem"}
                 fontWeight={500}
               >
-                Silver
+                {info?.color}
               </Typography>
             </Box>
             <Box>
@@ -291,7 +346,7 @@ export default function Product() {
                 fontSize={"1.4rem"}
                 fontWeight={500}
               >
-                Steel
+                {info?.productMaterialEn}
               </Typography>
             </Box>
           </StyledAttrs>
@@ -305,33 +360,37 @@ export default function Product() {
                 fontSize={"1.4rem"}
                 fontWeight={500}
               >
-                Backorder
+                {info?.stock > 0 ? info.stock : "Backorder"}
               </Typography>
             </Box>
-            <Box>
-              <Typography color="text.fourth" fontSize={"1.4rem"}>
-                Restock Date:
-              </Typography>
-              <Typography
-                color="text.secondary"
-                fontSize={"1.4rem"}
-                fontWeight={500}
-              >
-                2022-10-01
-              </Typography>
-            </Box>
-            <Box>
-              <Typography color="text.fourth" fontSize={"1.4rem"}>
-                Restock Quantity:
-              </Typography>
-              <Typography
-                color="text.secondary"
-                fontSize={"1.4rem"}
-                fontWeight={500}
-              >
-                200
-              </Typography>
-            </Box>
+            {info?.restock && (
+              <>
+                <Box>
+                  <Typography color="text.fourth" fontSize={"1.4rem"}>
+                    Restock Date:
+                  </Typography>
+                  <Typography
+                    color="text.secondary"
+                    fontSize={"1.4rem"}
+                    fontWeight={500}
+                  >
+                    {formatDate(info?.restock?.restock_date, true)}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography color="text.fourth" fontSize={"1.4rem"}>
+                    Restock Quantity:
+                  </Typography>
+                  <Typography
+                    color="text.secondary"
+                    fontSize={"1.4rem"}
+                    fontWeight={500}
+                  >
+                    {info?.restock?.restock_quantity}
+                  </Typography>
+                </Box>
+              </>
+            )}
           </StyledAttrs>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Typography color="text.fifth" fontSize={"1.4rem"} fontWeight={500}>
@@ -420,7 +479,7 @@ export default function Product() {
               PRODUCT MANUAL
             </Typography>
             <img src={PdfIcon} />
-            <Button variant="outlined">
+            <Button variant="outlined" onClick={handleDownloadManual}>
               <Typography
                 color="#4d9ebf"
                 fontSize={"1.2rem"}
@@ -434,6 +493,13 @@ export default function Product() {
           </Paper>
         </TabPanel>
       </StyleTabs>
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Layout>
   );
 }

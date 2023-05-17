@@ -14,3 +14,5 @@ export const FEEDBACK_SUBJECTS = [
   "Unsubscribe",
   "Other",
 ];
+
+export const BRAND_CATEGORYS = ["SONGMICS", "VASAGLE", "FEANDREA"];

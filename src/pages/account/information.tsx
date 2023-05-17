@@ -15,10 +15,24 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import PasswordIcon from "@assets/icons/account/exchange-three.svg";
-import { FormContainer, TextFieldElement } from "react-hook-form-mui";
-import { useSetState } from "ahooks";
+import {
+  FormContainer,
+  TextFieldElement,
+  useForm,
+  PasswordRepeatElement,
+  PasswordElement,
+} from "react-hook-form-mui";
+import { useRequest, useSetState } from "ahooks";
 import EditIcon from "@assets/icons/account/edit.svg";
 import PersonIcon from "@mui/icons-material/Person";
+import {
+  getInformation,
+  updateEmail,
+  updateFirstName,
+  updateLastName,
+  updatePassword,
+} from "@/api/account";
+import { useMessage } from "#lib/MessageProvider";
 
 type TabPanelProps = {
   children?: React.ReactNode;
@@ -68,7 +82,21 @@ export default function () {
     tabValue: 0,
   });
 
+  const { data } = useRequest(getInformation);
+  const { msg } = useMessage();
+
+  const formContext = useForm<API.InformationParams>({
+    values: {
+      firstname: data?.user?.firstname,
+      lastname: data?.user?.lastname,
+      email: data?.user?.email,
+    },
+  });
+
   const handleClickOpen = (type: State["type"]) => {
+    if (type == "password") {
+      formContext.reset();
+    }
     setState({
       type,
       open: true,
@@ -100,6 +128,42 @@ export default function () {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setState({
       tabValue: newValue,
+    });
+  };
+
+  const handleSubmit = async (data: API.InformationParams) => {
+    switch (state.type) {
+      case "first name":
+        if (data?.firstname) {
+          await updateFirstName(data.firstname);
+        }
+
+        break;
+      case "last name":
+        if (data?.lastname) {
+          await updateLastName(data.lastname);
+        }
+
+        break;
+      case "email":
+        if (data?.email) {
+          await updateEmail(data.email);
+        }
+        break;
+      case "password":
+        await updatePassword({
+          old_password: data.old_password,
+          new_password: data.new_password,
+          confirm_password: data.confirm_password,
+        });
+        break;
+    }
+
+    msg({
+      message: "Update successfully!",
+      onConfirm() {
+        window.location.reload();
+      },
     });
   };
 
@@ -140,20 +204,24 @@ export default function () {
           padding={"28px 30px 44px"}
         >
           <Box display={"flex"} alignItems={"center"} columnGap={1}>
-            <Typography fontSize={"1.2rem"}>FIRST NAME:Wang5</Typography>
+            <Typography fontSize={"1.2rem"}>
+              FIRST NAME:{data?.user?.firstname}
+            </Typography>
             <IconButton onClick={() => handleClickOpen("first name")}>
               <img src={EditIcon} />
             </IconButton>
           </Box>
           <Box display={"flex"} alignItems={"center"} columnGap={1}>
-            <Typography fontSize={"1.2rem"}>LAST NAME:Songxian5</Typography>
+            <Typography fontSize={"1.2rem"}>
+              LAST NAME:{data?.user?.lastname}
+            </Typography>
             <IconButton onClick={() => handleClickOpen("last name")}>
               <img src={EditIcon} />
             </IconButton>
           </Box>
           <Box display={"flex"} alignItems={"center"} columnGap={1}>
             <Typography fontSize={"1.2rem"}>
-              EMAIL:wsxzieljob@126.com
+              EMAIL:{data?.user?.email}
             </Typography>
             <IconButton onClick={() => handleClickOpen("email")}>
               <img src={EditIcon} />
@@ -166,31 +234,38 @@ export default function () {
         <StyledCardTitle>BASIC CUSTOMER INFORMATION</StyledCardTitle>
         <Box component={"ul"} display={"flex"} flexWrap={"wrap"}>
           <StyledLiItem>
-            <span>Client Code:</span> <span>20000419</span>
+            <span>Client Code:</span>{" "}
+            <span>{data?.user?.eya_t2?.customerCode}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Client Type:</span> <span>T2</span>
+            <span>Client Type:</span>{" "}
+            <span>{data?.user?.eya_t2?.customerTypeCode}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Client Name:</span> <span>Home24 SE</span>
+            <span>Client Name:</span>{" "}
+            <span>{data?.user?.eya_t2?.customerName}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Tel:</span> <span></span>
+            <span>Tel:</span> <span>{data?.user?.eya_t2?.telephoneInfo}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Tax Code:</span> <span>DE266182271</span>
+            <span>Tax Code:</span> <span>{data?.user?.eya_t2?.taxNumber}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Currency:</span> <span>EUR</span>
+            <span>Currency:</span>{" "}
+            <span>{data?.user?.eya_t2?.currencyCode}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Price Term Code:</span> <span>0019</span>
+            <span>Price Term Code:</span>{" "}
+            <span>{data?.user?.eya_t2?.paymentConditionCode}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Business Scope:</span> <span></span>
+            <span>Business Scope:</span>{" "}
+            <span>{data?.user?.eya_t2?.customerBusinessScopeCode}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Sales Range:</span> <span>T1</span>
+            <span>Sales Range:</span>{" "}
+            <span>{data?.user?.eya_t2?.customerSalesChannelCode}</span>
           </StyledLiItem>
         </Box>
       </StyledCard>
@@ -199,22 +274,24 @@ export default function () {
         <StyledCardTitle>BASIC CUSTOMER INFORMATION-ADD.</StyledCardTitle>
         <Box component={"ul"} display={"flex"} flexWrap={"wrap"}>
           <StyledLiItem>
-            <span>Country:</span> <span>Germany</span>
+            <span>Country:</span>{" "}
+            <span>{data?.user?.eya_t2?.countryAreaNameEn}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Province/State:</span> <span>Berlin</span>
+            <span>Province/State:</span>{" "}
+            <span>{data?.user?.eya_t2?.provinceAreaNameEn}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Post code:</span> <span>10249</span>
+            <span>Post code:</span> <span>{data?.user?.eya_t2?.postCode}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Tel:</span> <span></span>
+            <span>Tel:</span> <span>{data?.user?.eya_t2?.telephoneInfo}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Tax Code:</span> <span>DE266182271</span>
+            <span>Tax Code:</span> <span>{data?.user?.eya_t2?.taxNumber}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>ADD.:</span> <span>Otto-Ostrowski-Str. 3</span>
+            <span>ADD.:</span> <span>{data?.user?.eya_t2?.addressDetail}</span>
           </StyledLiItem>
         </Box>
       </StyledCard>
@@ -223,13 +300,16 @@ export default function () {
         <StyledCardTitle>CLIENT ATTRIBUTION</StyledCardTitle>
         <Box component={"ul"} display={"flex"} flexWrap={"wrap"}>
           <StyledLiItem>
-            <span>Sale Group:</span> <span>634010201</span>
+            <span>Sale Group:</span>{" "}
+            <span>{data?.user?.eya_t2?.businessGroupCode}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Saler:</span> <span>Paola Han</span>
+            <span>Saler:</span>{" "}
+            <span>{data?.user?.eya_t2?.businessEmptName_en}</span>
           </StyledLiItem>
           <StyledLiItem>
-            <span>Sales Assistant:</span> <span>Paola Han</span>
+            <span>Sales Assistant:</span>{" "}
+            <span>{data?.user?.eya_t2?.assistantEmptName_en}</span>
           </StyledLiItem>
         </Box>
       </StyledCard>
@@ -260,155 +340,140 @@ export default function () {
         </StyledCardTitle>
 
         <TabPanel value={state.tabValue} index={0}>
-          <Box
-            component={"ul"}
-            display={"flex"}
-            flexWrap={"wrap"}
-            sx={(theme) => {
-              return {
-                background: theme.palette.background.paper,
-                padding: "0 40px 25px",
-                marginTop: "30px",
-              };
-            }}
-          >
-            <StyledLiItem className="fullWidth">
-              <Typography fontWeight={500}>Home24 SE</Typography>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Client Code:</span> <span>20000419</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Short Name:</span> <span>Home24 SE</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Tax Code:</span> <span>DE266182271</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Country:</span> <span>Germany</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Province/State:</span> <span>Berlin</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Post code:</span> <span>10249</span>
-            </StyledLiItem>
-            <StyledLiItem className="fullWidth">
-              <span>Tel:</span> <span></span>
-            </StyledLiItem>
-            <StyledLiItem className="fullWidth">
-              <span>Detailed address:</span> <span>Otto-Ostrowski-Str. 3</span>
-            </StyledLiItem>
-          </Box>
+          {data?.eya_users?.T5?.map((item: any, index: number) => {
+            return (
+              <Box
+                key={index}
+                component={"ul"}
+                display={"flex"}
+                flexWrap={"wrap"}
+                sx={(theme) => {
+                  return {
+                    background: theme.palette.background.paper,
+                    padding: "0 40px 25px",
+                    marginTop: "30px",
+                  };
+                }}
+              >
+                <StyledLiItem className="fullWidth">
+                  <Typography fontWeight={500}>{item?.customerName}</Typography>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Client Code:</span> <span>{item?.partnerCode}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Short Name:</span>{" "}
+                  <span>{item?.customerShortName}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Tax Code:</span> <span>{item?.taxNumber}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Country:</span> <span>{item?.countryAreaNameEn}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Province/State:</span>{" "}
+                  <span>{item?.provinceAreaNameEn}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Post code:</span> <span>{item?.postCode}</span>
+                </StyledLiItem>
+                <StyledLiItem className="fullWidth">
+                  <span>Tel:</span> <span>{item?.telephoneInfo}</span>
+                </StyledLiItem>
+                <StyledLiItem className="fullWidth">
+                  <span>Detailed address:</span>{" "}
+                  <span>{item?.addressDetail}</span>
+                </StyledLiItem>
+              </Box>
+            );
+          })}
         </TabPanel>
         <TabPanel value={state.tabValue} index={1}>
-          <Box
-            component={"ul"}
-            display={"flex"}
-            flexWrap={"wrap"}
-            sx={(theme) => {
-              return {
-                background: theme.palette.background.paper,
-                padding: "0 40px 25px",
-                marginTop: "30px",
-              };
-            }}
-          >
-            <StyledLiItem className="fullWidth">
-              <Typography fontWeight={500}>Home24 SE</Typography>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Client Code:</span> <span>20000419</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Short Name:</span> <span>Home24 SE</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Tax Code:</span> <span>DE266182271</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Country:</span> <span>Germany</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Province/State:</span> <span>Berlin</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Post code:</span> <span>10249</span>
-            </StyledLiItem>
-            <StyledLiItem className="fullWidth">
-              <span>Tel:</span> <span></span>
-            </StyledLiItem>
-            <StyledLiItem className="fullWidth">
-              <span>Detailed address:</span> <span>Otto-Ostrowski-Str. 3</span>
-            </StyledLiItem>
-          </Box>
-          <Box
-            component={"ul"}
-            display={"flex"}
-            flexWrap={"wrap"}
-            sx={(theme) => {
-              return {
-                background: theme.palette.background.paper,
-                padding: "0 40px 25px",
-                marginTop: "30px",
-              };
-            }}
-          >
-            <StyledLiItem className="fullWidth">
-              <Typography fontWeight={500}>Home24 SE</Typography>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Client Code:</span> <span>20000419</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Short Name:</span> <span>Home24 SE</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Tax Code:</span> <span>DE266182271</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Country:</span> <span>Germany</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Province/State:</span> <span>Berlin</span>
-            </StyledLiItem>
-            <StyledLiItem>
-              <span>Post code:</span> <span>10249</span>
-            </StyledLiItem>
-            <StyledLiItem className="fullWidth">
-              <span>Tel:</span> <span></span>
-            </StyledLiItem>
-            <StyledLiItem className="fullWidth">
-              <span>Detailed address:</span> <span>Otto-Ostrowski-Str. 3</span>
-            </StyledLiItem>
-          </Box>
+          {data?.eya_users?.T6?.map((item: any, index: number) => {
+            return (
+              <Box
+                key={index}
+                component={"ul"}
+                display={"flex"}
+                flexWrap={"wrap"}
+                sx={(theme) => {
+                  return {
+                    background: theme.palette.background.paper,
+                    padding: "0 40px 25px",
+                    marginTop: "30px",
+                  };
+                }}
+              >
+                <StyledLiItem className="fullWidth">
+                  <Typography fontWeight={500}>{item?.customerName}</Typography>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Client Code:</span> <span>{item?.partnerCode}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Short Name:</span>{" "}
+                  <span>{item?.customerShortName}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Tax Code:</span> <span>{item?.taxNumber}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Country:</span> <span>{item?.countryAreaNameEn}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Province/State:</span>{" "}
+                  <span>{item?.provinceAreaNameEn}</span>
+                </StyledLiItem>
+                <StyledLiItem>
+                  <span>Post code:</span> <span>{item?.postCode}</span>
+                </StyledLiItem>
+                <StyledLiItem className="fullWidth">
+                  <span>Tel:</span> <span>{item?.telephoneInfo}</span>
+                </StyledLiItem>
+                <StyledLiItem className="fullWidth">
+                  <span>Detailed address:</span>{" "}
+                  <span>{item?.addressDetail}</span>
+                </StyledLiItem>
+              </Box>
+            );
+          })}
         </TabPanel>
       </StyledCard>
-
       <Dialog open={state.open}>
-        <FormContainer
-          onSuccess={async (data) => {
-            console.log(data);
-          }}
+        <DialogTitle>CHANGE {state.type?.toUpperCase()}</DialogTitle>
+        <FormContainer<API.InformationParams>
+          onSuccess={handleSubmit}
+          formContext={formContext}
         >
-          <DialogTitle>CHANGE {state.type?.toUpperCase()}</DialogTitle>
-          <DialogContent sx={{ paddingTop: "10px!important" }}>
+          <DialogContent sx={{ pt: "10px!important" }}>
             {state.type == "password" && (
               <>
-                <TextFieldElement
+                <PasswordElement
                   autoFocus
                   required
                   label="Old Password"
-                  name="password"
+                  name="old_password"
                   fullWidth
+                  sx={{ mb: 2 }}
                 />
-                <TextFieldElement
+                <PasswordElement
                   required
                   label="New Password"
                   name="new_password"
                   fullWidth
+                  sx={{ mb: 2 }}
+                  validation={{
+                    validate: (value: string) => {
+                      if (!/(\w){6,25}$/.test(value)) {
+                        return "Password between 6-25 characters";
+                      }
+                      return true;
+                    },
+                  }}
                 />
-                <TextFieldElement
+                <PasswordRepeatElement
+                  passwordFieldName="new_password"
                   required
                   label="Confirm Password"
                   name="confirm_password"
@@ -446,6 +511,7 @@ export default function () {
                 name="email"
                 fullWidth
                 autoFocus
+                type="email"
                 sx={{ width: 350 }}
               />
             )}

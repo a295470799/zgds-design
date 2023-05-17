@@ -27,3 +27,17 @@ export const getProductInfo = (sku: string) => {
     return res.data;
   });
 };
+
+/**
+ *
+ * @returns
+ */
+export const downloadManual = (product_id: string) => {
+  return request({
+    method: "POST",
+    url: "/api/product/getProductBomInstructionFileUrl",
+    data: { product_id },
+  }).then((res) => {
+    return res.data;
+  });
+};

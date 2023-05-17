@@ -1,4 +1,9 @@
-import { formatPrice, formatBeijingDate, formatDate } from "@/utils/format";
+import {
+  formatPrice,
+  formatBeijingDate,
+  formatDate,
+  blobToJson,
+} from "@/utils/format";
 import {
   Box,
   Button,
@@ -24,7 +29,8 @@ import { useSetState } from "ahooks";
 import MultipleSelectElement from "#lib/MultipleSelectElement";
 import CheckSquareIcon from "@assets/icons/account/CheckSquare-r.svg";
 import CIDetail from "./CIDetail";
-import { getInvoiceInfo } from "@/api/account";
+import { downloadCiInvoice, getInvoiceInfo } from "@/api/account";
+import { enqueueSnackbar } from "notistack";
 
 const StyledActionButton = styled(Button)`
   height: 22px;
@@ -51,16 +57,6 @@ interface Props {
 
 const CIGrid: React.FC<Props> = (props) => {
   const { rowData, onChange } = props;
-
-  const checkboxSelection = function (params: any) {
-    // we put checkbox on the name if we are not doing grouping
-    return params.columnApi.getRowGroupColumns().length === 0;
-  };
-
-  const headerCheckboxSelection = function (params: any) {
-    // we put checkbox on the name if we are not doing grouping
-    return params.columnApi.getRowGroupColumns().length === 0;
-  };
 
   const currencyFormatter = (params: any) => {
     return formatPrice(params.value);
@@ -89,8 +85,8 @@ const CIGrid: React.FC<Props> = (props) => {
       field: "invoiceNumber",
       headerName: "CI NO.",
       width: 200,
-      checkboxSelection: checkboxSelection,
-      headerCheckboxSelection: headerCheckboxSelection,
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
     },
     {
       headerName: "Action",
@@ -265,6 +261,35 @@ const CIGrid: React.FC<Props> = (props) => {
     onChange(searchParams);
   };
 
+  const handleDownloadCI = async () => {
+    const ids = state.gridOptions.api?.getSelectedRows().map((item) => item.id);
+    if (Array.isArray(ids) && ids.length > 0) {
+      const res = await downloadCiInvoice(ids);
+      if (res?.data?.type == "application/pdf") {
+        const fileUrl = window.URL.createObjectURL(new Blob([res.data]));
+        const fileLink = document.createElement("a");
+        fileLink.href = fileUrl;
+        fileLink.setAttribute(
+          "download",
+          `${Math.round(new Date().valueOf() / 1000)}.pdf`
+        ); // 设置下载文件的名称
+        document.body.appendChild(fileLink);
+        fileLink.click();
+      } else {
+        blobToJson(res.data)
+          .then((json) => {
+            enqueueSnackbar(json?.message || "System busy, please retry", {
+              variant: "error",
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            enqueueSnackbar("System busy, please retry", { variant: "error" });
+          });
+      }
+    }
+  };
+
   return (
     <>
       <FormContainer
@@ -389,7 +414,7 @@ const CIGrid: React.FC<Props> = (props) => {
         </Box>
       </FormContainer>
       <Box display={"flex"} columnGap={2} padding={"20px 20px 0"}>
-        <Button color="success" size="medium">
+        <Button color="success" size="medium" onClick={handleDownloadCI}>
           <img src={CheckSquareIcon} style={{ marginRight: "5px" }} />
           Download CI PDF
         </Button>

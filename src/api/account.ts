@@ -103,3 +103,113 @@ export const createFeedback = async (data: API.ContactUsParams) => {
     return res.data;
   });
 };
+
+/**
+ * Account Dashboard
+ */
+export const getDashboard = async () => {
+  return request({
+    method: "POST",
+    url: "/api/account/getDashboard",
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * Account Information
+ */
+export const getInformation = async () => {
+  return request({
+    method: "POST",
+    url: "/api/account/getInformation",
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 更新FirstName
+ */
+export const updateFirstName = async (firstname: string) => {
+  return request({
+    method: "POST",
+    url: "/api/account/updateFirstName",
+    data: { firstname },
+    showError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 更新LastName
+ */
+export const updateLastName = async (lastname: string) => {
+  return request({
+    method: "POST",
+    url: "/api/account/updateLastName",
+    data: { lastname },
+    showError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 更新Email
+ */
+export const updateEmail = async (email: string) => {
+  return request({
+    method: "POST",
+    url: "/api/account/updateEmail",
+    data: { email },
+    showError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 更新Email
+ */
+export const updatePassword = async (data: API.InformationParams) => {
+  return request({
+    method: "POST",
+    url: "/api/account/updatePassword",
+    data,
+    showError: true,
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 下载PI发票
+ */
+export const downloadPiInvoice = async (ids: string[]) => {
+  return request({
+    method: "POST",
+    url: "/api/account/downPiInvoice",
+    responseType: "blob",
+    data: { ids },
+    showError: true,
+  }).then((res) => {
+    return res;
+  });
+};
+
+/**
+ * 下载CI发票
+ */
+export const downloadCiInvoice = async (ids: string[]) => {
+  return request({
+    method: "POST",
+    url: "/api/account/downCiInvoice",
+    responseType: "blob",
+    data: { ids },
+    showError: true,
+  }).then((res) => {
+    return res;
+  });
+};

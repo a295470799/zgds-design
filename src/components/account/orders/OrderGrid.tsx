@@ -1,4 +1,9 @@
-import { formatPrice, formatBeijingDate, formatDate } from "@/utils/format";
+import {
+  formatPrice,
+  formatBeijingDate,
+  formatDate,
+  blobToJson,
+} from "@/utils/format";
 import {
   Box,
   Button,
@@ -27,6 +32,8 @@ import XSquareIcon from "@assets/icons/account/XSquare-r.svg";
 import { cancelOrders, confirmOrders } from "@/api/order";
 import { enqueueSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { downloadPiInvoice } from "@/api/account";
 
 const StyledActionButton = styled(Button)`
   height: 22px;
@@ -52,16 +59,6 @@ const OrderGrid: React.FC<Props> = (props) => {
   const { type, rowData, onChange, defaultParams } = props;
   const navigate = useNavigate();
 
-  const checkboxSelection = function (params: any) {
-    // we put checkbox on the name if we are not doing grouping
-    return params.columnApi.getRowGroupColumns().length === 0;
-  };
-
-  const headerCheckboxSelection = function (params: any) {
-    // we put checkbox on the name if we are not doing grouping
-    return params.columnApi.getRowGroupColumns().length === 0;
-  };
-
   const currencyFormatter = (params: any) => {
     return formatPrice(params.value);
   };
@@ -82,14 +79,39 @@ const OrderGrid: React.FC<Props> = (props) => {
     });
   };
 
-  const showCheckbox = type == "pending" || type == "pdf";
+  const handleDownloadPI = async () => {
+    const ids = state.gridOptions.api?.getSelectedRows().map((item) => item.id);
+    if (Array.isArray(ids) && ids.length > 0) {
+      const res = await downloadPiInvoice(ids);
+      if (res?.data?.type == "application/pdf") {
+        const fileUrl = window.URL.createObjectURL(new Blob([res.data]));
+        const fileLink = document.createElement("a");
+        fileLink.href = fileUrl;
+        fileLink.setAttribute(
+          "download",
+          `${Math.round(new Date().valueOf() / 1000)}.pdf`
+        ); // 设置下载文件的名称
+        document.body.appendChild(fileLink);
+        fileLink.click();
+      } else {
+        blobToJson(res.data)
+          .then((json) => {
+            enqueueSnackbar(json?.message || "System busy, please retry", {
+              variant: "error",
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            enqueueSnackbar("System busy, please retry", { variant: "error" });
+          });
+      }
+    }
+  };
 
   const columnDefs: ColDef[] = [
     {
       field: "number",
       headerName: "Order",
-      checkboxSelection: showCheckbox ? checkboxSelection : false,
-      headerCheckboxSelection: showCheckbox ? headerCheckboxSelection : false,
     },
     {
       headerName: "Action",
@@ -157,6 +179,13 @@ const OrderGrid: React.FC<Props> = (props) => {
       columnDefs: columnDefs,
     },
   });
+
+  useEffect(() => {
+    const showCheckbox = type == "pending" || type == "pdf";
+    columnDefs[0].checkboxSelection = showCheckbox;
+    columnDefs[0].headerCheckboxSelection = showCheckbox;
+    state.gridOptions.api?.setColumnDefs(columnDefs);
+  }, [type]);
 
   const handleSearch = (value: any) => {
     const searchParams: API.OrderListParams = {
@@ -339,7 +368,7 @@ const OrderGrid: React.FC<Props> = (props) => {
 
       {type == "pdf" && (
         <Box display={"flex"} columnGap={2} padding={"20px 20px 0"}>
-          <Button color="success" size="medium">
+          <Button color="success" size="medium" onClick={handleDownloadPI}>
             <img src={CheckSquareIcon} style={{ marginRight: "5px" }} />
             Download PI PDF
           </Button>
@@ -377,7 +406,7 @@ const OrderGrid: React.FC<Props> = (props) => {
               e.columnApi?.getColumns()?.map((column) => column.getId()) ?? [];
             e.columnApi?.autoSizeColumns(allColumnIds, false);
           }}
-        ></AgGridReact>
+        />
       </Box>
       <Box
         display={"flex"}

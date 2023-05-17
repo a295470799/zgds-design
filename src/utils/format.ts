@@ -95,3 +95,25 @@ export const formatBeijingDate = (date: dayjs.ConfigType) => {
   }
   return "";
 };
+
+export const blobToJson = (blob: Blob): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      try {
+        const jsonString = reader.result as string;
+        const json = JSON.parse(jsonString);
+        resolve(json);
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsText(blob);
+  });
+};

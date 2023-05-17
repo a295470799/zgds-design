@@ -34,15 +34,13 @@ const Cart: React.FC = () => {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const getCartParams = (carts?: any[]) => {
-    return (
-      carts?.map((item) => {
-        return {
-          product_id: item.product_id,
-          count: item.count,
-          selected: item.selected,
-        };
-      }) ?? []
-    );
+    return carts?.map((item) => {
+      return {
+        product_id: item.product_id,
+        count: item.count,
+        selected: item.selected,
+      };
+    });
   };
 
   const {

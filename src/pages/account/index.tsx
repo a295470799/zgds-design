@@ -5,6 +5,8 @@ import { styled } from "@mui/material/styles";
 import DownloadIcon from "@assets/icons/product/pdf-download.svg";
 import CsvIcon from "@assets/icons/account/csv.svg";
 import XlsIcon from "@assets/icons/account/xls.svg";
+import { useRequest } from "ahooks";
+import { getDashboard } from "@/api/account";
 
 const StyledStatistic = styled(Paper)<{ width?: number }>`
   width: ${(props) => props?.width ?? 220}px;
@@ -95,6 +97,8 @@ const StyledCardTable = styled("ul")`
 `;
 
 export default function () {
+  const { data } = useRequest(getDashboard);
+
   return (
     <AccountWrapper>
       <Paper
@@ -109,7 +113,7 @@ export default function () {
       >
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography fontSize="2.0rem" fontWeight={700}>
-            Hello EUziel!
+            Hello {data?.user?.company_name}!
           </Typography>
           <Typography fontSize="1.6rem" fontWeight={500}>
             Welcome to ZIEL Global Distributor System
@@ -125,15 +129,19 @@ export default function () {
       >
         <StyledStatistic>
           <StyledStatisticTitle>TOTAL ORDERS</StyledStatisticTitle>
-          <StyledStatisticContent>0</StyledStatisticContent>
+          <StyledStatisticContent>{data?.order_count}</StyledStatisticContent>
         </StyledStatistic>
         <StyledStatistic width={300}>
           <StyledStatisticTitle>TOTAL AMOUNTS</StyledStatisticTitle>
-          <StyledStatisticContent>{formatPrice(0)}</StyledStatisticContent>
+          <StyledStatisticContent>
+            {formatPrice(data?.order_total_price)}
+          </StyledStatisticContent>
         </StyledStatistic>
         <StyledStatistic>
           <StyledStatisticTitle>TOTAL UNITS</StyledStatisticTitle>
-          <StyledStatisticContent>0</StyledStatisticContent>
+          <StyledStatisticContent>
+            {data?.order_snaps_count}
+          </StyledStatisticContent>
         </StyledStatistic>
       </Box>
       <StyledCard>
@@ -173,7 +181,7 @@ export default function () {
       </StyledCard>
       <StyledCard>
         <StyledCardTitle>TOP ITEMS YOU BOUGHT</StyledCardTitle>
-        <StyledCardTable>
+        {/* <StyledCardTable>
           <li>
             <span>VASAGLE Side Table</span>
             <span>SKU: PCT161W01</span>
@@ -204,12 +212,12 @@ export default function () {
             <span>QTY: 200</span>
             <span>TOTAL: 3769,99 €</span>
           </li>
-        </StyledCardTable>
-        {/* <Typography>---</Typography> */}
+        </StyledCardTable> */}
+        <Typography>---</Typography>
       </StyledCard>
       <StyledCard>
         <StyledCardTitle>TOP COOPERATIVE CUSTOMERS</StyledCardTitle>
-        <StyledCardTable>
+        {/* <StyledCardTable>
           <li className="table-head">
             <span>CUSTOMER NAME</span>
             <span>COUNTRY</span>
@@ -240,8 +248,8 @@ export default function () {
             <span>17.26%</span>
             <span>789,99 €</span>
           </li>
-        </StyledCardTable>
-        {/* <Typography>---</Typography> */}
+        </StyledCardTable> */}
+        <Typography>---</Typography>
       </StyledCard>
     </AccountWrapper>
   );

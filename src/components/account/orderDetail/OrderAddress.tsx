@@ -18,7 +18,6 @@ interface Props {
   addressInfo: API.OrderDetailAddressParams;
   countrys?: any[];
   zones?: any[];
-  control?: any;
   callBack?: (data: API.EyaUserInfo) => void;
   setValue?: UseFormSetValue<API.ShippingParams>;
   onCountryChange?: (countryCode: string) => void;
@@ -33,7 +32,6 @@ const OrderAddress: React.FC<Props> = (props) => {
     addressInfo,
     countrys = [],
     zones = [],
-    control,
     callBack,
     setValue,
     onCountryChange,
@@ -121,22 +119,9 @@ const OrderAddress: React.FC<Props> = (props) => {
             },
           }}
         >
-          <TextFieldElement
-            name="shipping_name"
-            placeholder="Name"
-            required
-            control={control}
-          />
-          <TextFieldElement
-            name="shipping_email"
-            placeholder="Email"
-            control={control}
-          />
-          <TextFieldElement
-            name="shipping_phone"
-            placeholder="Phone"
-            control={control}
-          />
+          <TextFieldElement name="shipping_name" placeholder="Name" required />
+          <TextFieldElement name="shipping_email" placeholder="Email" />
+          <TextFieldElement name="shipping_phone" placeholder="Phone" />
           <SelectElement
             name="shipping_country_code"
             placeholder="Country"
@@ -153,14 +138,8 @@ const OrderAddress: React.FC<Props> = (props) => {
             }}
             required
             sx={{ width: "100%" }}
-            control={control}
           />
-          <TextFieldElement
-            name="shipping_city"
-            placeholder="City"
-            required
-            control={control}
-          />
+          <TextFieldElement name="shipping_city" placeholder="City" required />
           <SelectElement
             name="shipping_zone"
             placeholder="State"
@@ -171,19 +150,16 @@ const OrderAddress: React.FC<Props> = (props) => {
               };
             })}
             sx={{ width: "100%" }}
-            control={control}
           />
           <TextFieldElement
             name="shipping_postcode"
             placeholder="Postal Code"
             required
-            control={control}
           />
           <TextFieldElement
             name="shipping_address"
             placeholder="Address"
             required
-            control={control}
           />
         </Box>
       ) : (
