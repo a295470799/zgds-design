@@ -1,1 +1,0 @@
-import{a5 as r}from"./index-3983a4e6.js";const c=async(t,a,e="inc")=>r({method:"POST",url:"/api/account/setCart",data:{product_id:t,count:a,type:e},showError:!0}).then(n=>n.data),s=async t=>r({method:"POST",url:t?"/api/account/setCart2":"/api/account/getCart",data:{data:t}}).then(a=>a.data);export{c as a,s as g};

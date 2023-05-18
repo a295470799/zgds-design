@@ -23,7 +23,7 @@ import PdfIcon from "@assets/icons/product/pdf.svg";
 import DownloadIcon from "@assets/icons/product/pdf-download.svg";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Swiper as SwiperClass } from "swiper/types";
-import { Thumbs, Navigation } from "swiper";
+import { FreeMode, Navigation, Thumbs } from "swiper";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
@@ -185,15 +185,15 @@ export default function Product() {
       <StyledInfo>
         <StyledInfoLeft>
           <Swiper
-            modules={[Thumbs, Navigation]}
-            thumbs={thumbsSwiper ? { swiper: thumbsSwiper } : undefined}
+            modules={[FreeMode, Navigation, Thumbs]}
+            thumbs={{
+              swiper:
+                thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+            }}
             navigation={{
               prevEl: prevRef.current,
               nextEl: nextRef.current,
             }}
-            observer
-            observeParents
-            observeSlideChildren
           >
             {info?.images?.map((item: any, index: number) => {
               return (
@@ -211,16 +211,13 @@ export default function Product() {
             })}
           </Swiper>
           <Swiper
-            className="product-thumbs-swiper"
-            modules={[Thumbs]}
-            watchSlidesProgress
-            watchOverflow
             onSwiper={setThumbsSwiper}
-            slidesPerView={6}
             spaceBetween={10}
-            observer
-            observeParents
-            observeSlideChildren
+            slidesPerView={6}
+            freeMode
+            watchSlidesProgress
+            modules={[FreeMode, Navigation, Thumbs]}
+            className="product-thumbs-swiper"
           >
             {info?.images?.map((item: any, index: number) => {
               return (
