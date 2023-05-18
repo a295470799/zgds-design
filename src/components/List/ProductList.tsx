@@ -96,7 +96,10 @@ const ProductList: React.FC<Props> = (props) => {
                   <div className="badge badge-sale">{item?.label}</div>
                 )}
                 <div className="badge badge-wish">
-                  <IconButton onClick={() => onAddWish(item.id, item.wished)}>
+                  <IconButton
+                    onClick={() => onAddWish(item.id, item.wished)}
+                    color="secondary"
+                  >
                     <img src={item.wished == 0 ? WishIcon : WishedIcon} />
                   </IconButton>
                 </div>

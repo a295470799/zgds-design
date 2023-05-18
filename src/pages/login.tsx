@@ -6,11 +6,11 @@ import "swiper/css/pagination";
 import { Box, Button } from "@mui/material";
 import Link from "@mui/material/Link";
 import { FormContainer, TextFieldElement } from "react-hook-form-mui";
-// import { useState } from "react";
 import ImageComponent from "#lib/Image";
 import { useRequest } from "ahooks";
 import { login } from "@/api/user";
 import { setToken } from "@/utils/auth";
+import { getLoginAdv } from "@/api/common";
 
 const Container = styled("div")`
   background-color: #0074a3;
@@ -96,30 +96,18 @@ const StyledTitle = styled("div")`
   text-align: center;
 `;
 
-// type FormProps = {
-//   email: string;
-//   password: string;
-// };
-
 export default function Login() {
-  const { data: images } = useRequest(async () => {
-    return await ["/image/login/1.jpg", "/image/login/2.jpg"];
-  });
-
-  // const [values, setValues] = useState<FormProps>();
-  // const onSubmit = (data: FormProps) => {
-  //   setValues(data);
-  // };
+  const { data: images } = useRequest(getLoginAdv);
 
   return (
     <Container>
       <LoginWrapper>
         <LoginSwiper modules={[Pagination]} pagination={{ clickable: true }}>
-          {images?.map((item, index) => {
+          {images?.map((item: any) => {
             return (
-              <SwiperSlide key={index}>
+              <SwiperSlide key={item.id}>
                 <ImageComponent
-                  src={item}
+                  src={item?.image}
                   alt="banner"
                   width={680}
                   height={600}

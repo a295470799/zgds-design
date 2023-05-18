@@ -115,7 +115,6 @@ export default function () {
                       height={80}
                       fit="cover"
                       containerSx={{ margin: "0 auto" }}
-                      sx={{ borderRadius: "20px" }}
                     />
                   </Box>
                   <Link href={`/product/${item.sku}`}>

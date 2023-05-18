@@ -4,26 +4,37 @@ import { Controller } from "react-hook-form-mui";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
+interface OptionsProps {
+  id: string;
+  label: string;
+}
+
 interface Props {
   label: string;
-  options: {
-    id: string;
-    label: string;
-  }[];
+  options: OptionsProps[] | (string | number)[];
   name: string;
 }
 
 const MultipleSelectElement: React.FC<Props> = (props) => {
   const { label, options = [], name } = props;
+  const newOptions = options.map((item) => {
+    if (typeof item == "object") {
+      return item;
+    }
+    return {
+      id: item,
+      label: item,
+    };
+  });
   return (
     <Controller
       name={name}
       render={({ field: { value, onChange, ref } }) => (
         <Autocomplete
           multiple
-          options={options}
+          options={newOptions}
           disableCloseOnSelect
-          getOptionLabel={(option) => option.label}
+          getOptionLabel={(option) => option.label.toString()}
           renderOption={(props, option, { selected }) => (
             <li {...props}>
               <Checkbox
@@ -44,9 +55,7 @@ const MultipleSelectElement: React.FC<Props> = (props) => {
           isOptionEqualToValue={(option, value) => {
             return option.id == value.id;
           }}
-          value={value?.map((item: string) => {
-            return { id: item, label: item };
-          })}
+          value={newOptions.filter((i) => value.includes(i.id))}
           sx={{
             "& .MuiAutocomplete-tag": {
               margin: "2px",

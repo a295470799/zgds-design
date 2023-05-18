@@ -13,6 +13,7 @@ import { getOrderList } from "@/api/order";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import VolumeOrder from "@/components/account/orders/VolumeOrder";
+import { getOrdersFilter } from "@/api/account";
 
 const StyledCardLable = styled("p")`
   color: rgba(255, 255, 255, 0.5);
@@ -95,6 +96,10 @@ export default function () {
     defaultParams: [params],
     debounceWait: 300,
     manual: true,
+  });
+
+  const { data: shippingCountry } = useRequest(getOrdersFilter, {
+    debounceWait: 300,
   });
 
   useEffect(() => {
@@ -231,6 +236,7 @@ export default function () {
 
         <OrderGrid
           type={params?.type}
+          shippingCountry={shippingCountry}
           rowData={orderList}
           onChange={(data) => {
             navigate(

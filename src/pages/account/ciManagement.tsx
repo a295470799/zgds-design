@@ -5,6 +5,7 @@ import { useLocation } from "react-router";
 import qs from "query-string";
 import { getInvoiceList } from "@/api/account";
 import CIGrid from "@/components/account/ciManagement/CIGrid";
+import { getCiFilter } from "@/api/account";
 
 export default function () {
   const location = useLocation();
@@ -17,10 +18,18 @@ export default function () {
     manual: true,
   });
 
+  const { data: filters } = useRequest(getCiFilter, {
+    debounceWait: 300,
+  });
+
   return (
     <AccountWrapper code="ci">
       <Paper>
-        <CIGrid rowData={invoiceList} onChange={runInvoiceList} />
+        <CIGrid
+          rowData={invoiceList}
+          onChange={runInvoiceList}
+          filters={filters}
+        />
       </Paper>
     </AccountWrapper>
   );

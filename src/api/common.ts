@@ -34,3 +34,16 @@ export const getCategorys = async (type = 0) => {
     return res.data;
   });
 };
+
+/**
+ * 获取登录页面广告图
+ * @returns
+ */
+export const getLoginAdv = async () => {
+  return request({
+    method: "POST",
+    url: "/api/common/getLoginAdv",
+  }).then((res) => {
+    return res.data;
+  });
+};

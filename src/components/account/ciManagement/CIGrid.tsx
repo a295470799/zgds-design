@@ -5,8 +5,10 @@ import {
   blobToJson,
 } from "@/utils/format";
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   MenuItem,
   Pagination,
   Select,
@@ -31,6 +33,7 @@ import CheckSquareIcon from "@assets/icons/account/CheckSquare-r.svg";
 import CIDetail from "./CIDetail";
 import { downloadCiInvoice, getInvoiceInfo } from "@/api/account";
 import { enqueueSnackbar } from "notistack";
+import { useState } from "react";
 
 const StyledActionButton = styled(Button)`
   height: 22px;
@@ -53,10 +56,11 @@ type State = {
 interface Props {
   rowData: any;
   onChange: (params?: API.InvoiceListParams) => void;
+  filters?: any;
 }
 
 const CIGrid: React.FC<Props> = (props) => {
-  const { rowData, onChange } = props;
+  const { rowData, onChange, filters } = props;
 
   const currencyFormatter = (params: any) => {
     return formatPrice(params.value);
@@ -260,32 +264,39 @@ const CIGrid: React.FC<Props> = (props) => {
     setState({ params: searchParams });
     onChange(searchParams);
   };
-
+  const [loading, setLoading] = useState(false);
   const handleDownloadCI = async () => {
     const ids = state.gridOptions.api?.getSelectedRows().map((item) => item.id);
     if (Array.isArray(ids) && ids.length > 0) {
-      const res = await downloadCiInvoice(ids);
-      if (res?.data?.type == "application/pdf") {
-        const fileUrl = window.URL.createObjectURL(new Blob([res.data]));
-        const fileLink = document.createElement("a");
-        fileLink.href = fileUrl;
-        fileLink.setAttribute(
-          "download",
-          `${Math.round(new Date().valueOf() / 1000)}.pdf`
-        ); // 设置下载文件的名称
-        document.body.appendChild(fileLink);
-        fileLink.click();
-      } else {
-        blobToJson(res.data)
-          .then((json) => {
-            enqueueSnackbar(json?.message || "System busy, please retry", {
-              variant: "error",
+      try {
+        setLoading(true);
+        const res = await downloadCiInvoice(ids);
+        if (res?.data?.type == "application/pdf") {
+          const fileUrl = window.URL.createObjectURL(new Blob([res.data]));
+          const fileLink = document.createElement("a");
+          fileLink.href = fileUrl;
+          fileLink.setAttribute(
+            "download",
+            `${Math.round(new Date().valueOf() / 1000)}.pdf`
+          ); // 设置下载文件的名称
+          document.body.appendChild(fileLink);
+          fileLink.click();
+        } else {
+          blobToJson(res.data)
+            .then((json) => {
+              enqueueSnackbar(json?.message || "System busy, please retry", {
+                variant: "error",
+              });
+            })
+            .catch((error) => {
+              console.error(error);
+              enqueueSnackbar("System busy, please retry", {
+                variant: "error",
+              });
             });
-          })
-          .catch((error) => {
-            console.error(error);
-            enqueueSnackbar("System busy, please retry", { variant: "error" });
-          });
+        }
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -379,12 +390,14 @@ const CIGrid: React.FC<Props> = (props) => {
             <Box width={"48%"} marginTop={"15px"}>
               <MultipleSelectElement
                 name="ship_to"
-                options={[
-                  { id: "DE", label: "DE" },
-                  { id: "FR", label: "FR" },
-                  { id: "FI", label: "FI" },
-                  { id: "GR", label: "GR" },
-                ]}
+                options={
+                  filters?.shipping_countrys?.map((item: any) => {
+                    return {
+                      id: item?.area_code,
+                      label: item?.area_short_name_en,
+                    };
+                  }) ?? []
+                }
                 label="Ship to"
               />
             </Box>
@@ -392,7 +405,7 @@ const CIGrid: React.FC<Props> = (props) => {
             <Box width={"48%"} marginTop={"15px"}>
               <MultipleSelectElement
                 name="freeFaxNumber"
-                options={[{ id: "DE266182271", label: "DE266182271" }]}
+                options={filters?.freeFaxNumbers ?? []}
                 label="VAT NO"
               />
             </Box>
@@ -501,6 +514,13 @@ const CIGrid: React.FC<Props> = (props) => {
         detailData={state.gridDetailData}
         partnersData={state.gridPartnersData}
       />
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 };

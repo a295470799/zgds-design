@@ -10,7 +10,7 @@ import {
   Tabs,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Stepper from "#lib/Stepper";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
@@ -41,7 +41,9 @@ const StyledInfo = styled("div")`
 const StyledInfoLeft = styled("div")`
   flex: 0 0 auto;
   width: 500px;
+
   .product-thumbs-swiper {
+    margin-top: 10px;
     .swiper-button-next,
     .swiper-button-prev {
       color: ${(props) => props.theme.palette.grey[900]};
@@ -167,6 +169,9 @@ export default function Product() {
     document.body.removeChild(link);
   };
 
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+
   return (
     <Layout>
       <Breadcrumb>
@@ -180,8 +185,12 @@ export default function Product() {
       <StyledInfo>
         <StyledInfoLeft>
           <Swiper
-            modules={[Thumbs]}
+            modules={[Thumbs, Navigation]}
             thumbs={thumbsSwiper ? { swiper: thumbsSwiper } : undefined}
+            navigation={{
+              prevEl: prevRef.current,
+              nextEl: nextRef.current,
+            }}
             observer
             observeParents
             observeSlideChildren
@@ -203,14 +212,12 @@ export default function Product() {
           </Swiper>
           <Swiper
             className="product-thumbs-swiper"
-            modules={[Thumbs, Navigation]}
+            modules={[Thumbs]}
             watchSlidesProgress
             watchOverflow
             onSwiper={setThumbsSwiper}
             slidesPerView={6}
             spaceBetween={10}
-            navigation={true}
-            style={{ marginBlockStart: 10 }}
             observer
             observeParents
             observeSlideChildren
@@ -229,6 +236,8 @@ export default function Product() {
                 </SwiperSlide>
               );
             })}
+            <div className="swiper-button-prev" ref={prevRef} />
+            <div className="swiper-button-next" ref={nextRef} />
           </Swiper>
         </StyledInfoLeft>
         <StyledInfoRight>
@@ -419,7 +428,12 @@ export default function Product() {
             >
               ADD TO CART
             </Button>
-            <IconButton aria-label="add to wish" onClick={handleWish}>
+            <IconButton
+              aria-label="add to wish"
+              onClick={handleWish}
+              color="secondary"
+              disableRipple
+            >
               <img src={info?.wished == 0 ? WishIcon : WishedIcon} />
             </IconButton>
           </Box>

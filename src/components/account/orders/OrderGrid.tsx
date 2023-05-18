@@ -5,8 +5,10 @@ import {
   blobToJson,
 } from "@/utils/format";
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   MenuItem,
   Pagination,
   Select,
@@ -32,7 +34,7 @@ import XSquareIcon from "@assets/icons/account/XSquare-r.svg";
 import { cancelOrders, confirmOrders } from "@/api/order";
 import { enqueueSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { downloadPiInvoice } from "@/api/account";
 
 const StyledActionButton = styled(Button)`
@@ -51,12 +53,13 @@ type State = {
 interface Props {
   rowData: any;
   type?: string;
+  shippingCountry?: any[];
   onChange: (params?: API.OrderListParams) => void;
   defaultParams?: API.OrderListParams;
 }
 
 const OrderGrid: React.FC<Props> = (props) => {
-  const { type, rowData, onChange, defaultParams } = props;
+  const { type, rowData, shippingCountry, onChange, defaultParams } = props;
   const navigate = useNavigate();
 
   const currencyFormatter = (params: any) => {
@@ -79,31 +82,40 @@ const OrderGrid: React.FC<Props> = (props) => {
     });
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleDownloadPI = async () => {
     const ids = state.gridOptions.api?.getSelectedRows().map((item) => item.id);
     if (Array.isArray(ids) && ids.length > 0) {
-      const res = await downloadPiInvoice(ids);
-      if (res?.data?.type == "application/pdf") {
-        const fileUrl = window.URL.createObjectURL(new Blob([res.data]));
-        const fileLink = document.createElement("a");
-        fileLink.href = fileUrl;
-        fileLink.setAttribute(
-          "download",
-          `${Math.round(new Date().valueOf() / 1000)}.pdf`
-        ); // 设置下载文件的名称
-        document.body.appendChild(fileLink);
-        fileLink.click();
-      } else {
-        blobToJson(res.data)
-          .then((json) => {
-            enqueueSnackbar(json?.message || "System busy, please retry", {
-              variant: "error",
+      try {
+        setLoading(true);
+        const res = await downloadPiInvoice(ids);
+        if (res?.data?.type == "application/pdf") {
+          const fileUrl = window.URL.createObjectURL(new Blob([res.data]));
+          const fileLink = document.createElement("a");
+          fileLink.href = fileUrl;
+          fileLink.setAttribute(
+            "download",
+            `${Math.round(new Date().valueOf() / 1000)}.pdf`
+          ); // 设置下载文件的名称
+          document.body.appendChild(fileLink);
+          fileLink.click();
+        } else {
+          blobToJson(res.data)
+            .then((json) => {
+              enqueueSnackbar(json?.message || "System busy, please retry", {
+                variant: "error",
+              });
+            })
+            .catch((error) => {
+              console.error(error);
+              enqueueSnackbar("System busy, please retry", {
+                variant: "error",
+              });
             });
-          })
-          .catch((error) => {
-            console.error(error);
-            enqueueSnackbar("System busy, please retry", { variant: "error" });
-          });
+        }
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -209,7 +221,13 @@ const OrderGrid: React.FC<Props> = (props) => {
       ?.getSelectedRows()
       ?.map((item) => item.id);
     if (Array.isArray(ids) && ids.length > 0) {
-      await confirmOrders(ids);
+      try {
+        setLoading(true);
+        await confirmOrders(ids);
+      } finally {
+        setLoading(false);
+      }
+
       enqueueSnackbar("Success!");
       handleSearch(state.params);
     }
@@ -220,7 +238,13 @@ const OrderGrid: React.FC<Props> = (props) => {
       ?.getSelectedRows()
       ?.map((item) => item.id);
     if (Array.isArray(ids) && ids.length > 0) {
-      await cancelOrders(ids);
+      try {
+        setLoading(true);
+        await cancelOrders(ids);
+      } finally {
+        setLoading(false);
+      }
+
       enqueueSnackbar("Success!");
       handleSearch(state.params);
     }
@@ -319,10 +343,7 @@ const OrderGrid: React.FC<Props> = (props) => {
             <Box width={"48%"} marginTop={"15px"}>
               <MultipleSelectElement
                 name="order_type"
-                options={[
-                  { id: "Dropship", label: "Dropship" },
-                  { id: "Batch order", label: "Batch order" },
-                ]}
+                options={["Dropship", "Batch order"]}
                 label="Order Type"
               />
             </Box>
@@ -330,12 +351,14 @@ const OrderGrid: React.FC<Props> = (props) => {
             <Box width={"48%"} marginTop={"15px"}>
               <MultipleSelectElement
                 name="ship_to"
-                options={[
-                  { id: "DE", label: "DE" },
-                  { id: "FR", label: "FR" },
-                  { id: "FI", label: "FI" },
-                  { id: "GR", label: "GR" },
-                ]}
+                options={
+                  shippingCountry?.map((item) => {
+                    return {
+                      id: item?.area_code,
+                      label: item?.area_short_name_en,
+                    };
+                  }) ?? []
+                }
                 label="Ship to"
               />
             </Box>
@@ -445,6 +468,13 @@ const OrderGrid: React.FC<Props> = (props) => {
           />
         )}
       </Box>
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 };

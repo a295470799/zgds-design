@@ -213,3 +213,29 @@ export const downloadCiInvoice = async (ids: string[]) => {
     return res;
   });
 };
+
+/**
+ * 获取Orders列表筛选信息
+ * @returns
+ */
+export const getOrdersFilter = () => {
+  return request({
+    method: "POST",
+    url: "/api/account/getOrdersFilter",
+  }).then((res) => {
+    return res.data;
+  });
+};
+
+/**
+ * 获取CiManager列表筛选信息
+ * @returns
+ */
+export const getCiFilter = () => {
+  return request({
+    method: "POST",
+    url: "/api/account/getCiFilter",
+  }).then((res) => {
+    return res.data;
+  });
+};

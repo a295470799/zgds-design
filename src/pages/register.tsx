@@ -390,6 +390,7 @@ export default function Register() {
                 </Box>
               }
               required
+              helperText=" "
             />
           </Grid>
         </Grid>
