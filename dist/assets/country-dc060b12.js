@@ -1,1 +1,0 @@
-import{a5 as e}from"./index-7fc42087.js";const n=()=>e({method:"POST",url:"/api/account/getCountrys"}).then(t=>t.data),o=t=>e({method:"POST",url:"/api/account/getZones",data:{area_code:t}}).then(a=>a.data);export{n as a,o as g};

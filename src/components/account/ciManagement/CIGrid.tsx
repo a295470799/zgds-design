@@ -29,7 +29,7 @@ import DatePicker from "react-datepicker";
 import "@/styles/react-datepicker.css";
 import { useSetState } from "ahooks";
 import MultipleSelectElement from "#lib/MultipleSelectElement";
-import CheckSquareIcon from "@assets/icons/account/CheckSquare-r.svg";
+import CheckSquareIcon from "@assets/icons/account/CheckSquare.svg";
 import CIDetail from "./CIDetail";
 import { downloadCiInvoice, getInvoiceInfo } from "@/api/account";
 import { enqueueSnackbar } from "notistack";

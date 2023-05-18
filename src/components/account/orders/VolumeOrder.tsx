@@ -7,12 +7,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import UploadSimpleIcon from "@assets/icons/account/UploadSimple-r.svg";
-import DownloadSimpleIcon from "@assets/icons/account/DownloadSimple-r.svg";
+import UploadSimpleIcon from "@assets/icons/account/UploadSimple.svg";
+import DownloadSimpleIcon from "@assets/icons/account/DownloadSimple.svg";
 import { ChangeEvent } from "react";
 import { createdropOrders } from "@/api/order";
 import { useMessage } from "#lib/MessageProvider";
-import WarningIcon from "@assets/icons/account/Warning-f.svg";
+import WarningIcon from "@assets/icons/account/Warning.svg";
 
 interface Props {
   open: boolean;
